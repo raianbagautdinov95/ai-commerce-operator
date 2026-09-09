@@ -8,7 +8,7 @@ right job and cannot decrypt the token it needs — and the symptom on screen is
 store that appears to have disconnected.
 
 The scheduler is the one that is easiest to forget, because nothing looks broken
-without it. It is `railway/scheduler.toml`: a cron running `python -m app.daily`,
+without it. It is declared in `.railway/railway.ts`: a cron running `python -m app.daily`,
 which warns about ending trials, queues the read-only Shopify sync and prices
 every measurement window that has closed. Deploy it with the same variables as
 the worker plus `PUBLIC_APP_URL`.
@@ -29,7 +29,7 @@ first sync fails loudly at boot instead.
 | Variable | api | worker | frontend | Notes |
 |---|:--:|:--:|:--:|---|
 | `APP_ENV` | ✓ | ✓ | | `production`. Below `staging`, every safety check is skipped by design. |
-| `DATABASE_URL` | ✓ | ✓ | | Must be identical. Use the `aco_app` role, not the owner — see `ops/RAILWAY.md`. |
+| `APP_DATABASE_URL` | ✓ | ✓ | | Railway shared variable mapped to `DATABASE_URL`. Use the `aco_app` role, not the owner — see `ops/RAILWAY.md`. |
 | `REDIS_URL` | ✓ | ✓ | | Must be identical, or the API enqueues where nobody listens. |
 | `QUEUE_ENABLED` | ✓ | ✓ | | `true`. The API refuses to start in production without it. |
 | `AUTH_ENABLED` | ✓ | ✓ | | `true`. With it off every request is the same tenant. |
@@ -149,8 +149,8 @@ Redis whether this container is registered and beating.
 
 ## Migrations
 
-`railway/api.toml` carries `preDeployCommand = "alembic -c alembic.ini upgrade
-head"`, so migrations run once per deploy, before the new API serves traffic and
+The `api` resource in `.railway/railway.ts` carries the pre-deploy command
+`alembic -c alembic.ini upgrade head`, so migrations run once per deploy, before the new API serves traffic and
 before the worker picks up jobs against a schema that has not moved yet. Do not
 run them from the worker as well: two services racing the same migration is a
 lock, at best.

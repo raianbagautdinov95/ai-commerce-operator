@@ -95,6 +95,15 @@ def test_the_sign_in_variables_are_marked_required():
         assert name in required, f"{name} is not in a required section"
 
 
-@pytest.mark.parametrize("service", ["api", "worker", "frontend", "scheduler"])
-def test_each_service_has_a_railway_config(service):
-    assert (ROOT / "railway" / f"{service}.toml").exists()
+def test_railway_iac_declares_the_complete_environment():
+    config = (ROOT / ".railway" / "railway.ts").read_text(encoding="utf-8")
+    for service_name in ("ai-commerce-operator", "worker", "frontend", "scheduler"):
+        assert f'service("{service_name}"' in config
+    assert 'const api = service("ai-commerce-operator"' in config
+    assert 'postgres("postgres")' in config
+    assert 'redis("redis")' in config
+    assert 'cronSchedule: "0 7 * * *"' in config
+
+
+def test_deprecated_railway_configs_are_not_present():
+    assert list((ROOT / "railway").glob("*.toml")) == []
