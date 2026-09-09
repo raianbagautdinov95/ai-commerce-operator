@@ -180,3 +180,42 @@ def test_the_deployed_ports_match_what_the_containers_listen_on():
         assert re.search(rf"^EXPOSE {service}$", body, re.M), (
             f"{dockerfile.parent.name}/Dockerfile does not expose {service}")
         assert f"ENV PORT={service}" in body
+
+
+def test_every_variable_the_paid_gate_blocks_on_is_in_the_deployment():
+    """This file is the whole set of variables, not a subset of them.
+
+    One that exists in Railway and not here is one an apply can remove — and the
+    day it removes a Stripe key is the day Checkout starts answering 503 with
+    nothing in the diff to explain it. Secrets are `preserve()`d rather than
+    written down; what matters is that they are named at all.
+    """
+    iac = _iac()
+    for name in ("STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "STRIPE_PRICE_OPERATOR",
+                 "STRIPE_SUCCESS_URL", "STRIPE_CANCEL_URL", "STRIPE_PORTAL_RETURN_URL"):
+        assert name in iac, f"{name} is not in the deployment definition"
+
+
+def test_no_secret_is_written_into_the_deployment_file():
+    """It is committed. Everything sensitive is set in Railway and preserved."""
+    import re
+
+    iac = _iac()
+    for name in ("STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "JWT_SECRET",
+                 "SHOPIFY_CLIENT_SECRET", "CREDENTIAL_ENCRYPTION_KEYS",
+                 "RESEND_API_KEY", "APP_DB_PASSWORD"):
+        assert re.search(rf"{name}:\s*preserve\(\)", iac), (
+            f"{name} must be preserve(), not a literal in a committed file")
+
+
+def test_the_stripe_return_urls_are_addresses_a_customer_can_reach():
+    """Stripe sends somebody here right after taking their money."""
+    import re
+
+    for name in ("STRIPE_SUCCESS_URL", "STRIPE_CANCEL_URL", "STRIPE_PORTAL_RETURN_URL"):
+        match = re.search(rf'{name}:\s*"([^"]+)"', _iac())
+        assert match, f"{name} has no address"
+        url = match.group(1)
+        assert url.startswith("https://"), url
+        assert not any(bad in url for bad in
+                       ("localhost", "127.0.0.1", "trycloudflare", "ngrok")), url

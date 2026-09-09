@@ -75,6 +75,24 @@ export default defineRailway(() => {
       LEGAL_ADDRESS: preserve(),
       PRIVACY_CONTACT: preserve(),
       SUPPORT_RESPONSE_TIME: preserve(),
+
+      // Billing. Listed here even though none of it is set yet, because this
+      // file is the whole set: a variable that exists in Railway and not here
+      // is one an apply can remove, and the day it removes these is the day
+      // Checkout starts answering 503 with nothing in the diff to explain it.
+      //
+      // The secrets stay in Railway — preserve() means "this is set by hand,
+      // leave it alone". The return URLs are not secrets and are derived from
+      // the domain like every other address, so they are written down: Stripe
+      // sends a customer to them right after taking their money, and a
+      // hostname that changed overnight lands them on nothing.
+      STRIPE_SECRET_KEY: preserve(),
+      STRIPE_WEBHOOK_SECRET: preserve(),
+      STRIPE_PRICE_OPERATOR: preserve(),
+      STRIPE_API_VERSION: preserve(),
+      STRIPE_SUCCESS_URL: "https://app.aicommerceoperator.com/billing",
+      STRIPE_CANCEL_URL: "https://app.aicommerceoperator.com/pricing",
+      STRIPE_PORTAL_RETURN_URL: "https://app.aicommerceoperator.com/billing",
     },
   });
 
