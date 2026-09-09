@@ -216,7 +216,9 @@ def test_railway_starts_the_worker_through_the_module():
     """
     import pathlib
 
-    config = pathlib.Path(__file__).resolve().parents[2] / "railway" / "worker.toml"
+    # The per-service toml files were replaced by one IaC definition; the claim
+    # this test makes did not change with them.
+    config = pathlib.Path(__file__).resolve().parents[2] / ".railway" / "railway.ts"
     text = config.read_text(encoding="utf-8")
-    assert 'startCommand = "python -m app.worker"' in text
-    assert "rq worker --url" not in text.split("# NOT")[0]
+    assert 'startCommand: "python -m app.worker"' in text
+    assert "rq worker --url" not in text

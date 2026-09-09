@@ -169,7 +169,11 @@ def set_product_cost(req: ProductCostWrite,
         raise HTTPException(status_code=422,
                             detail="A cost cannot be negative.")
     total = purchase + extra
-    effective_from = req.effective_from or dt.date.today()
+    # The UTC date, like every other date in this system. `dt.date.today()` is
+    # the server's local one, and the lookup that reads this back asks in UTC —
+    # so on a machine ahead of UTC a cost entered in the evening was recorded as
+    # starting tomorrow and was invisible to a measurement asking about today.
+    effective_from = req.effective_from or dt.datetime.now(dt.timezone.utc).date()
 
     row = product_costs.record(
         db, store_id=store.id, product_id=req.product_id,

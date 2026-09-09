@@ -55,6 +55,16 @@ def stack():
         app.dependency_overrides.pop(get_session, None)
 
 
+def _utc_today() -> dt.date:
+    """The date the application works in.
+
+    The machine's own date is a different day for part of every night, which is
+    enough to make a cost recorded "today" invisible to a lookup asking for
+    today — which is exactly how this test started failing.
+    """
+    return dt.datetime.now(dt.timezone.utc).date()
+
+
 def _shop(factory, *, sold=((SMALL, "Small", 4, 400.0),), currency="USD"):
     db = factory()
     store = crud.get_or_create_dev_store(db)
@@ -65,7 +75,7 @@ def _shop(factory, *, sold=((SMALL, "Small", 4, 400.0),), currency="USD"):
         # A sync has read the last three months, so nothing here is waiting for
         # days: what is missing is a cost, which is what this screen is about.
         synced_at=dt.datetime.now(dt.timezone.utc),
-        settings={"synced_from": (dt.date.today() - dt.timedelta(days=90)).isoformat()})
+        settings={"synced_from": (_utc_today() - dt.timedelta(days=90)).isoformat()})
     db.add(channel); db.flush()
     db.add(models.ChannelProduct(
         store_id=store.id, channel_id=channel.id, external_product_id=PRODUCT,
@@ -75,7 +85,7 @@ def _shop(factory, *, sold=((SMALL, "Small", 4, 400.0),), currency="USD"):
         db.add(models.VariantDailyMetric(
             store_id=store.id, channel_id=channel.id, external_product_id=PRODUCT,
             external_variant_id=variant_id, variant_title=title,
-            metric_date=dt.date.today() - dt.timedelta(days=2),
+            metric_date=_utc_today() - dt.timedelta(days=2),
             units=units, revenue=revenue, refunded_units=0, refunded_revenue=0,
             currency=currency, source="shopify_graphql"))
     db.commit(); db.close()
@@ -113,7 +123,7 @@ def test_a_recorded_cost_shows_where_it_came_from(stack):
     db = factory()
     product_costs.record(db, store_id=store.id, product_id=PRODUCT, variant_id=SMALL,
                          amount=Decimal("20.00"), currency="USD",
-                         effective_from=dt.date.today() - dt.timedelta(days=30),
+                         effective_from=_utc_today() - dt.timedelta(days=30),
                          source=product_costs.SHOPIFY,
                          verification=product_costs.CONFIRMED, commit=True)
     db.close()
@@ -140,7 +150,7 @@ def test_a_cost_in_the_wrong_currency_is_flagged_rather_than_converted(stack):
     db = factory()
     product_costs.record(db, store_id=store.id, product_id=PRODUCT, variant_id=SMALL,
                          amount=Decimal("18.00"), currency="EUR",
-                         effective_from=dt.date.today(), source=product_costs.MANUAL,
+                         effective_from=_utc_today(), source=product_costs.MANUAL,
                          verification=product_costs.REPORTED, commit=True)
     db.close()
 
@@ -154,7 +164,7 @@ def test_a_product_wide_cost_says_that_it_is_not_this_variants_own(stack):
     db = factory()
     product_costs.record(db, store_id=store.id, product_id=PRODUCT, variant_id="",
                          amount=Decimal("20.00"), currency="USD",
-                         effective_from=dt.date.today(), source=product_costs.MANUAL,
+                         effective_from=_utc_today(), source=product_costs.MANUAL,
                          verification=product_costs.REPORTED, commit=True)
     db.close()
 

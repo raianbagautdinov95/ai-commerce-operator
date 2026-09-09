@@ -373,7 +373,11 @@ def test_the_sync_records_which_days_it_read(db, monkeypatch):
 
     channel = db.get(models.ChannelConnection, channel.id)
     covered_from = dt.date.fromisoformat(channel.settings["synced_from"])
-    assert (dt.date.today() - covered_from).days == 30
+    # Against the UTC date, because that is what the sync subtracts from. Local
+    # is a different day for part of every night, and this assertion would then
+    # pass or fail depending on the hour it ran.
+    today = dt.datetime.now(dt.timezone.utc).date()
+    assert (today - covered_from).days == 30
 
 
 def test_the_sync_stores_no_customer_details(db, monkeypatch):
