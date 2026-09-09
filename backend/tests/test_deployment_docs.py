@@ -159,3 +159,24 @@ def test_every_service_the_product_needs_is_defined():
 def test_migrations_belong_to_exactly_one_service():
     """Two services racing the same revision is how a migration half-applies."""
     assert _iac().count("preDeployCommand") == 1
+
+
+def test_the_deployed_ports_match_what_the_containers_listen_on():
+    """A custom domain is routed to a port somebody types in by hand.
+
+    Railway may inject a `PORT` of its own and both Dockerfiles obey whatever
+    they are given, so the day the platform picks a different number the domain
+    keeps pointing at the old one — and the edge answers 404 with nothing wrong
+    in any log, which is exactly how this presented. Pinning it is only useful
+    if the pin and the container agree, so that is what this checks.
+    """
+    import re
+
+    iac = _iac()
+    for service, dockerfile in (("8000", ROOT / "backend" / "Dockerfile"),
+                                ("3000", ROOT / "frontend" / "Dockerfile")):
+        assert f'PORT: "{service}"' in iac, f"port {service} is not pinned in the IaC"
+        body = dockerfile.read_text(encoding="utf-8")
+        assert re.search(rf"^EXPOSE {service}$", body, re.M), (
+            f"{dockerfile.parent.name}/Dockerfile does not expose {service}")
+        assert f"ENV PORT={service}" in body

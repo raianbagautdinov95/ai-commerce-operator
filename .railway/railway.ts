@@ -57,6 +57,12 @@ export default defineRailway(() => {
     },
     env: {
       ...backendEnvironment,
+      // Pinned so the custom domain's target port cannot drift away from what
+      // the container listens on. Railway may inject a PORT of its own, and the
+      // Dockerfile obeys whatever it is given — so the day the platform picks a
+      // different number, the domain keeps pointing at the old one and the edge
+      // answers 404 with nothing wrong in any log. Same value as EXPOSE.
+      PORT: "8000",
       MIGRATION_DATABASE_URL: database.env.DATABASE_URL,
       APP_DB_PASSWORD: preserve(),
       APP_DB_ROLE: "aco_app",
@@ -122,6 +128,9 @@ export default defineRailway(() => {
       restartPolicyMaxRetries: 10,
     },
     env: {
+      // Pinned for the same reason as the API's: the domain's target port has
+      // to be a number somebody can look up, not one the platform chooses.
+      PORT: "3000",
       NEXT_PUBLIC_API_BASE: "https://api.aicommerceoperator.com",
       // The address above is compiled into the JavaScript a browser downloads,
       // so a wrong one ships and no restart corrects it. It has shipped wrong
