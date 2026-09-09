@@ -107,3 +107,55 @@ def test_railway_iac_declares_the_complete_environment():
 
 def test_deprecated_railway_configs_are_not_present():
     assert list((ROOT / "railway").glob("*.toml")) == []
+
+
+# --- the deployment that actually reaches people -----------------------------
+
+IAC = ROOT / ".railway" / "railway.ts"
+
+
+def _iac() -> str:
+    return IAC.read_text(encoding="utf-8")
+
+
+def test_the_production_frontend_build_keeps_its_guard():
+    """The API address is compiled into the JavaScript a browser downloads, so a
+    wrong one ships and no restart corrects it. It has shipped wrong twice here.
+
+    `frontend/Dockerfile` refuses http, localhost and throwaway tunnels — but
+    only when `REQUIRE_PUBLIC_API_BASE` is "true", and that was set solely in
+    `docker-compose.production.yml`. Which is not the build that reaches
+    anybody: the one build that ships to real browsers had the guard switched
+    off, which is exactly the wrong way round.
+    """
+    assert 'REQUIRE_PUBLIC_API_BASE: "true"' in _iac(), (
+        "the Railway frontend build does not enable the guard that refuses a "
+        "development API address")
+
+
+def test_the_deployed_api_address_is_one_a_browser_can_reach():
+    """Checked at the source as well as at build time. The build refuses these
+    too, but a refused deploy is found later than a failing test."""
+    import re
+
+    match = re.search(r'NEXT_PUBLIC_API_BASE:\s*"([^"]+)"', _iac())
+    assert match, "the frontend has no API address in the IaC"
+    address = match.group(1)
+    assert address.startswith("https://"), address
+    assert not any(bad in address for bad in
+                   ("localhost", "127.0.0.1", "trycloudflare", "ngrok")), address
+
+
+def test_every_service_the_product_needs_is_defined():
+    """A database and a queue are services here too, and the scheduler is the
+    one nothing looks broken without."""
+    iac = _iac()
+    for fragment in ('postgres("postgres")', 'redis("redis")',
+                     'service("worker"', 'service("scheduler"',
+                     'service("frontend"'):
+        assert fragment in iac, f"{fragment} is missing from the deployment"
+
+
+def test_migrations_belong_to_exactly_one_service():
+    """Two services racing the same revision is how a migration half-applies."""
+    assert _iac().count("preDeployCommand") == 1

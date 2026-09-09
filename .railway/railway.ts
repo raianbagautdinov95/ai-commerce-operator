@@ -123,6 +123,16 @@ export default defineRailway(() => {
     },
     env: {
       NEXT_PUBLIC_API_BASE: "https://api.aicommerceoperator.com",
+      // The address above is compiled into the JavaScript a browser downloads,
+      // so a wrong one ships and no restart corrects it. It has shipped wrong
+      // twice here: once as a domain with no DNS record, once as a developer's
+      // own localhost left in a shell variable.
+      //
+      // frontend/Dockerfile refuses http, localhost and throwaway tunnels when
+      // this is "true" — and it was set only in docker-compose.production.yml,
+      // which is not the build that reaches anybody. The one build that ships
+      // to real browsers was the one without the guard.
+      REQUIRE_PUBLIC_API_BASE: "true",
       NEXT_PUBLIC_SUPPORT_EMAIL: preserve(),
       NEXT_PUBLIC_SUPPORT_RESPONSE_TIME: preserve(),
     },
