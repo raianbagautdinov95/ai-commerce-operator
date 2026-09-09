@@ -1,0 +1,24 @@
+fastapi>=0.111
+uvicorn[standard]>=0.30
+pydantic>=2.7
+sqlalchemy>=2.0
+alembic>=1.13
+cryptography>=43.0
+redis>=5.0
+# Pinned, not floated. A rebuild moved this from 2.1 to 2.12 and the
+# worker registration quietly stopped carrying `hostname`, so the health
+# check called a working worker dead. A background worker is not a place
+# for a version to change without anybody deciding to.
+rq==2.12.0
+httpx>=0.27
+psycopg[binary]>=3.1
+python-dotenv>=1.0
+# Verifies Google's RS256 identity tokens against Google's rotating JWKS.
+# Only exercised when GOOGLE_CLIENT_ID is set, but not optional to install:
+# a sign-in path that fails at import time is worse than one that is off.
+google-auth>=2.30
+sentry-sdk[fastapi]>=2.0
+pytest>=8.0
+# Optional LLM providers (only needed if LLM_PROVIDER is set)
+openai>=1.30
+anthropic>=0.34

@@ -1,0 +1,26 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html",     "x": 0,    "y": 0,    "w": 1440, "h": 1136, "title": "1 · Today" },
+    { "file": "Findings.dc.html", "x": 1560, "y": 0,    "w": 1440, "h": 1036,  "title": "2 · What it found" },
+    { "file": "Review.dc.html",   "x": 3120, "y": 0,    "w": 1440, "h": 1056, "title": "3 · Your decision" },
+    { "file": "Payroll.dc.html",  "x": 0,    "y": 1260, "w": 1440, "h": 1076, "title": "4 · What it was worth" },
+    { "file": "Channels.dc.html", "x": 1560, "y": 1260, "w": 1440, "h": 936,  "title": "5 · Where it reads from" }
+  ],
+  "annotations": [
+    {
+      "id": "cycle",
+      "x": 0,
+      "y": -210,
+      "w": 660,
+      "text": "The operator's cycle, in one visual language.\n\nRead → judge → you decide → measure. Screens 1-4 follow the same negative keyword the whole way, so the same €900 appears as a finding, a decision, and finally as money proved or not.\n\nThe spectrum is light behind the panel and carries no meaning at all. Inside the panel only three colours are saturated, and each means something: green is proven, amber is waiting, red is refused or unproven. That separation is what keeps the look from eating the signal."
+    },
+    {
+      "id": "honesty",
+      "x": 3120,
+      "y": 1260,
+      "w": 540,
+      "text": "The rule the whole design serves.\n\nMoney that has not been proven never looks like money that has. Verified, still-measuring, unproven and demonstration each get their own treatment — never a footnote under one number.\n\nThe −€24.00 loss on screen 4 stays on the page for the same reason."
+    }
+  ],
+  "launch": { "view": "canvas" }
+}

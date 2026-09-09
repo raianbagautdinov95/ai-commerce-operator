@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; background: #FAF7F1; color: #17140F;
+           font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #1F4D3A; } a:hover { color: #143528; }
+    .serif { font-family: "Instrument Serif", ui-serif, Georgia, serif; font-weight: 400; }
+    .m { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    .lbl { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+           font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: #8A8072; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 900px; background: #FAF7F1; position: relative;">
+
+  <!-- masthead -->
+  <div style="display: flex; align-items: center; justify-content: space-between;
+              padding: 26px 60px 22px; border-bottom: 2px solid #17140F;">
+    <span class="serif" style="font-size: 25px; letter-spacing: -.01em;">Operator</span>
+    <div style="display: flex; gap: 28px;">
+      <span class="lbl" style="color: #17140F;">Today</span>
+      <span class="lbl">Proposals</span>
+      <span class="lbl">Payroll</span>
+      <span class="lbl">Channels</span>
+    </div>
+    <span class="m" style="font-size: 11.5px; color: #8A8072;">1 — 31 AUGUST 2026</span>
+  </div>
+
+  <div style="padding: 56px 60px 40px;">
+    <!-- the statement -->
+    <div style="display: grid; grid-template-columns: minmax(0,1fr) 380px; gap: 72px; align-items: start;">
+      <div>
+        <p class="lbl" style="margin: 0 0 20px;">An accounting of the month</p>
+        <h1 class="serif" style="margin: 0; font-size: 62px; line-height: 1.08; letter-spacing: -.02em; max-width: 15ch;">
+          It saved you <span style="color: #1F4D3A;">€418.60</span> and cost you <span class="m" style="font-size: 44px; font-weight: 400;">€49</span>.
+        </h1>
+        <p style="margin: 30px 0 0; font-size: 16px; line-height: 1.7; color: #4A443A; max-width: 54ch;">
+          Six changes were made to your advertising and every one was read back out of the account
+          afterwards. What could not be proven is listed on the right and counted as nothing.
+        </p>
+      </div>
+
+      <div style="border-top: 2px solid #17140F; padding-top: 20px;">
+        <p class="lbl" style="margin: 0 0 18px;">Not counted</p>
+        <div style="display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;
+                      padding: 13px 0; border-bottom: 1px solid #E4DED2;">
+            <span style="font-size: 14px; color: #4A443A;">Inside its window</span>
+            <span class="m" style="font-size: 14px;">€162.00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline;
+                      padding: 13px 0; border-bottom: 1px solid #E4DED2;">
+            <span style="font-size: 14px; color: #4A443A;">Not read back</span>
+            <span class="m" style="font-size: 14px; color: #A3402C;">€41.00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 13px 0;">
+            <span style="font-size: 14px; color: #4A443A;">Demonstration</span>
+            <span class="m" style="font-size: 14px; color: #8A8072;">€35,237.70</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- the ledger -->
+    <div style="margin-top: 54px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between;
+                  border-bottom: 2px solid #17140F; padding-bottom: 12px;">
+        <h2 class="serif" style="margin: 0; font-size: 27px;">Every change, and what it did</h2>
+        <span class="lbl">Saved spend, less the sales that went with it</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0,1fr) 130px 130px 140px 150px;
+                  align-items: baseline; padding: 20px 0 12px; border-bottom: 1px solid #E4DED2;">
+        <span class="lbl">Change</span>
+        <span class="lbl" style="text-align: right;">Was costing</span>
+        <span class="lbl" style="text-align: right;">Sales lost</span>
+        <span class="lbl" style="text-align: right;">Net</span>
+        <span class="lbl" style="text-align: right;">Evidence</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0,1fr) 130px 130px 140px 150px;
+                  align-items: baseline; padding: 19px 0; border-bottom: 1px solid #E4DED2;">
+        <span style="font-size: 16px;">Negated “bowl free shipping”</span>
+        <span class="m" style="font-size: 14px; color: #4A443A; text-align: right;">€288.00</span>
+        <span class="m" style="font-size: 14px; color: #8A8072; text-align: right;">—</span>
+        <span class="m serif" style="font-size: 24px; color: #1F4D3A; text-align: right;">€288.00</span>
+        <span class="lbl" style="text-align: right; color: #1F4D3A;">Verified</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0,1fr) 130px 130px 140px 150px;
+                  align-items: baseline; padding: 19px 0; border-bottom: 1px solid #E4DED2;">
+        <span style="font-size: 16px;">Negated “cheap dog bowl”</span>
+        <span class="m" style="font-size: 14px; color: #4A443A; text-align: right;">€120.50</span>
+        <span class="m" style="font-size: 14px; color: #A3402C; text-align: right;">−€6.00</span>
+        <span class="m serif" style="font-size: 24px; color: #1F4D3A; text-align: right;">€106.50</span>
+        <span class="lbl" style="text-align: right; color: #1F4D3A;">Verified</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0,1fr) 130px 130px 140px 150px;
+                  align-items: baseline; padding: 19px 0; border-bottom: 1px solid #E4DED2;">
+        <span style="font-size: 16px;">Lowered bid on “dog water bowl”</span>
+        <span class="m" style="font-size: 14px; color: #4A443A; text-align: right;">€92.00</span>
+        <span class="m" style="font-size: 14px; color: #A3402C; text-align: right;">−€55.00</span>
+        <span class="m serif" style="font-size: 24px; color: #A3402C; text-align: right;">−€24.00</span>
+        <span class="lbl" style="text-align: right;">Undone by you</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0,1fr) 130px 130px 140px 150px;
+                  align-items: baseline; padding: 19px 0; border-bottom: 1px solid #E4DED2; opacity: .62;">
+        <span style="font-size: 16px;">Negated “dog bowl set cheap”</span>
+        <span class="m" style="font-size: 14px; color: #4A443A; text-align: right;">€41.00</span>
+        <span class="m" style="font-size: 14px; color: #8A8072; text-align: right;">—</span>
+        <span class="m serif" style="font-size: 24px; color: #8A8072; text-align: right;">€0.00</span>
+        <span class="lbl" style="text-align: right; color: #A3402C;">Unproven</span>
+      </div>
+    </div>
+
+    <!-- footnote, as in a printed report -->
+    <div style="margin-top: 40px; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 60px;">
+      <div>
+        <p class="lbl" style="margin: 0 0 10px;">On the loss</p>
+        <p style="margin: 0; font-size: 14.5px; line-height: 1.75; color: #4A443A;">
+          The bid cut saved <span class="m">€31.00</span> and cost <span class="m">€55.00</span> in sales.
+          It stands at <span class="m" style="color: #A3402C;">−€24.00</span>. An operator that cannot
+          show its losses cannot be trusted with its wins.
+        </p>
+      </div>
+      <div>
+        <p class="lbl" style="margin: 0 0 10px;">On the €41.00</p>
+        <p style="margin: 0; font-size: 14.5px; line-height: 1.75; color: #4A443A;">
+          Amazon accepted the change; the keyword was absent when we looked again. It may well have
+          worked. We cannot show it, so it earns nothing.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

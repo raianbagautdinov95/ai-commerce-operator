@@ -1,0 +1,246 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #050506; color: #E8EDEF;
+           font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #4ADE80; text-decoration: none; } a:hover { color: #86EFAC; }
+    .m { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    .lbl { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+           font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: #5A6B72; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 1056px; box-sizing: border-box;
+            background: #050506; padding: 28px; position: relative;">
+
+  <!-- spectral bed: light escaping from behind the panel, as in the reference -->
+  <div style="position: absolute; inset: 12px; border-radius: 22px; filter: blur(44px);
+       opacity: .92; background: conic-gradient(from 268deg at 50% 50%, #FF2E63, #FF7A2F, #FFC53D, #7BE38B, #35C9E8, #6E7BF2, #C24BE8, #FF2E63);"></div>
+  <div style="position: absolute; inset: 40px; border-radius: 18px; filter: blur(58px);
+       background: #050506; opacity: .82;"></div>
+
+  <div style="position: relative; border-radius: 14px; overflow: hidden;
+       min-height: 1000px; box-shadow: 0 0 0 1px rgba(255,255,255,.055),
+       0 40px 90px -30px rgba(0,0,0,.9);
+       background: radial-gradient(circle 880px at 58% 42%, rgba(255,158,84,.15), rgba(255,110,70,.05) 44%, transparent 70%), #08090B;">
+  <div style="position: absolute; inset: 0; pointer-events: none; opacity: .5;
+       background-image: linear-gradient(#0E1417 1px, transparent 1px),
+                         linear-gradient(90deg, #0E1417 1px, transparent 1px);
+       background-size: 80px 80px;"></div>
+
+  <div style="position: relative;">
+
+    <div style="display: flex; align-items: center; gap: 30px; padding: 0 44px; height: 62px;
+                border-bottom: 1px solid #12191D;">
+      <div style="display: flex; align-items: center; gap: 11px; margin-right: 10px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12.5l2.5 2.5L16 9"/>
+        </svg>
+        <span class="m" style="font-size: 13px; font-weight: 500; letter-spacing: .1em;">OPERATOR</span>
+      </div>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #4A5A61;">TODAY</span>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #E8EDEF; border-bottom: 1px solid #4ADE80; padding: 21px 0;">PROPOSALS</span>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #4A5A61;">PAYROLL</span>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #4A5A61;">CHANNELS</span>
+      <div style="flex-grow: 1;"></div>
+      <span class="m" style="font-size: 11.5px; color: #4A5A61;">1 / 6</span>
+    </div>
+
+    <div style="display: grid; grid-template-columns: minmax(0,1fr) 420px; gap: 52px; padding: 40px 44px 44px;">
+
+      <!-- the case -->
+      <div style="display: flex; flex-direction: column; gap: 22px;">
+        <div>
+          <p class="lbl" style="margin: 0 0 18px;">← back to the six · advertising</p>
+          <h1 style="margin: 0 0 16px; font-size: 38px; font-weight: 600; letter-spacing: -.025em; line-height: 1.14;">
+            Stop paying for “luxury dog bowl”
+          </h1>
+          <p style="margin: 0; font-size: 15.5px; color: #8FA1A8; line-height: 1.7; max-width: 62ch;">
+            300 clicks and nothing sold in 14 days. Adding it as a negative keyword stops the spend.
+            It touches no bid, no budget and no targeting.
+          </p>
+        </div>
+
+        <!-- evidence -->
+        <div style="border: 1px solid #12191D; border-radius: 3px;">
+          <div style="padding: 16px 24px; background: #0A0E11; border-bottom: 1px solid #12191D;
+                      display: flex; align-items: baseline; justify-content: space-between;">
+            <span class="lbl">What the report says</span>
+            <span class="m" style="font-size: 11px; color: #4A5A61;">19 AUG — 1 SEP</span>
+          </div>
+          <div style="padding: 26px 24px;">
+            <div style="display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 24px;">
+              <div>
+                <p class="m" style="margin: 0; font-size: 32px; font-weight: 300; line-height: 1;">300</p>
+                <p class="lbl" style="margin: 9px 0 0;">clicks</p>
+              </div>
+              <div>
+                <p class="m" style="margin: 0; font-size: 32px; font-weight: 300; line-height: 1;">€900</p>
+                <p class="lbl" style="margin: 9px 0 0;">spent</p>
+              </div>
+              <div>
+                <p class="m" style="margin: 0; font-size: 32px; font-weight: 300; line-height: 1; color: #F87171;">0</p>
+                <p class="lbl" style="margin: 9px 0 0;">orders</p>
+              </div>
+              <div>
+                <p class="m" style="margin: 0; font-size: 32px; font-weight: 300; line-height: 1;">€3.00</p>
+                <p class="lbl" style="margin: 9px 0 0;">per click</p>
+              </div>
+            </div>
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #10171A;">
+              <p style="margin: 0; font-size: 13.5px; color: #8FA1A8; line-height: 1.75;">
+                Your break-even ACOS is <span class="m" style="color: #E8EDEF;">30%</span>. A term with
+                no sales has no ACOS to compare against — it is pure loss, which is why the engine
+                says <span style="color: #E8EDEF; font-weight: 600;">negate</span> rather than
+                <span style="color: #8FA1A8;">lower the bid</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- guardrails -->
+        <div style="border: 1px solid rgba(251,191,36,.28); border-radius: 3px;
+                    background: rgba(251,191,36,.035);">
+          <div style="padding: 15px 24px; border-bottom: 1px solid rgba(251,191,36,.18);
+                      display: flex; align-items: center; gap: 11px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 7v6c0 4.4 3.4 7.4 8 8 4.6-.6 8-3.6 8-8V7l-8-4Z"/></svg>
+            <span class="m" style="font-size: 11.5px; letter-spacing: .12em; color: #FBBF24;">YOUR LIMITS SAY THIS ONE IS YOURS TO DECIDE</span>
+          </div>
+          <div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 13px;">
+              <span class="m" style="font-size: 13px; color: #FBBF24; width: 14px;">✕</span>
+              <span style="font-size: 13.5px; color: #8FA1A8; line-height: 1.55;">
+                <span class="m" style="color: #E8EDEF;">€900.00</span> is over the
+                <span class="m">€25.00</span> you allow unattended
+              </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 13px;">
+              <span class="m" style="font-size: 13px; color: #FBBF24; width: 14px;">✕</span>
+              <span style="font-size: 13.5px; color: #8FA1A8; line-height: 1.55;">
+                the campaign spends <span class="m" style="color: #E8EDEF;">€64.29</span> a day,
+                over your <span class="m">€50.00</span> protected floor
+              </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 13px;">
+              <span class="m" style="font-size: 13px; color: #4ADE80; width: 14px;">✓</span>
+              <span style="font-size: 13.5px; color: #8FA1A8; line-height: 1.55;">
+                within the <span class="m">±20%</span> single-step limit — a negative keyword changes no bid
+              </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 13px;">
+              <span class="m" style="font-size: 13px; color: #4ADE80; width: 14px;">✓</span>
+              <span style="font-size: 13.5px; color: #8FA1A8; line-height: 1.55;">
+                <span class="m">17</span> of today's <span class="m">20</span> changes still available
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- exactly what changes -->
+        <div style="border: 1px solid #12191D; border-radius: 3px; padding: 24px;">
+          <p class="lbl" style="margin: 0 0 16px;">Exactly what changes</p>
+          <div style="background: #05070A; border: 1px solid #10171A; border-radius: 3px; padding: 18px 20px;">
+            <p class="m" style="margin: 0 0 10px; font-size: 11.5px; color: #4A5A61;">CAMPAIGN 118 · AD GROUP 442</p>
+            <p class="m" style="margin: 0; font-size: 14px; color: #4ADE80;">+ negative exact &nbsp;“luxury dog bowl”</p>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 26px; margin-top: 20px;">
+            <div>
+              <p class="lbl" style="margin: 0 0 8px;">Afterwards</p>
+              <p style="margin: 0; font-size: 13px; color: #8FA1A8; line-height: 1.65;">
+                The list is read back from Amazon. If the term is not there, this is recorded as
+                unproven and counts for nothing.
+              </p>
+            </div>
+            <div>
+              <p class="lbl" style="margin: 0 0 8px;">To undo</p>
+              <p style="margin: 0; font-size: 13px; color: #8FA1A8; line-height: 1.65;">
+                Remove that negative keyword. The value to restore is recorded before anything is sent.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- decision rail -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <div style="border: 1px solid rgba(74,222,128,.28); border-radius: 3px; padding: 26px 24px;
+                    background: rgba(74,222,128,.04);">
+          <p class="lbl" style="margin: 0 0 16px; color: #4ADE80;">If you approve</p>
+          <div style="display: flex; align-items: baseline; gap: 6px;">
+            <span class="m" style="font-size: 22px; font-weight: 300; color: #4ADE80;">€</span>
+            <span class="m" style="font-size: 52px; font-weight: 300; color: #4ADE80; line-height: 1;
+                         letter-spacing: -.04em; text-shadow: 0 0 38px rgba(74,222,128,.35);">900.00</span>
+          </div>
+          <p style="margin: 18px 0 24px; font-size: 13px; color: #8FA1A8; line-height: 1.65;">
+            stops leaving your account over the next 14 days, at the same rate as the last 14.
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 9px;">
+            <span class="m" style="display: block; text-align: center; font-size: 12px; letter-spacing: .12em;
+                         font-weight: 500; color: #07090B; background: #4ADE80; border-radius: 3px;
+                         padding: 14px; box-shadow: 0 0 26px rgba(74,222,128,.3);">APPROVE AND APPLY</span>
+            <span class="m" style="display: block; text-align: center; font-size: 11.5px; letter-spacing: .12em;
+                         color: #8FA1A8; border: 1px solid #1C242A; border-radius: 3px; padding: 13px;">NOT THIS ONE</span>
+          </div>
+          <p style="margin: 18px 0 0; font-size: 11.5px; color: #4A5A61; line-height: 1.65;">
+            A decision is made once. Coming back later shows what you chose, not a second chance to
+            change it by accident.
+          </p>
+        </div>
+
+        <div style="border-left: 1px solid #161D21; padding-left: 26px;">
+          <p class="lbl" style="margin: 0 0 20px;">How this will be judged</p>
+          <div style="display: flex; flex-direction: column; gap: 18px;">
+            <div style="display: flex; gap: 14px;">
+              <span class="m" style="font-size: 11.5px; color: #4ADE80; padding-top: 2px;">01</span>
+              <div>
+                <p style="margin: 0; font-size: 13.5px; font-weight: 500;">Now</p>
+                <p class="m" style="margin: 6px 0 0; font-size: 11.5px; color: #7C8F97; line-height: 1.7;">
+                  BASELINE FROZEN · €64.29/DAY SPENT · €0.00/DAY EARNED
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 14px;">
+              <span class="m" style="font-size: 11.5px; color: #4ADE80; padding-top: 2px;">02</span>
+              <div>
+                <p style="margin: 0; font-size: 13.5px; font-weight: 500;">In 14 days</p>
+                <p style="margin: 6px 0 0; font-size: 12.5px; color: #7C8F97; line-height: 1.65;">
+                  The same fortnight is measured again, and lost sales are subtracted from saved spend.
+                </p>
+              </div>
+            </div>
+            <div style="display: flex; gap: 14px;">
+              <span class="m" style="font-size: 11.5px; color: #4ADE80; padding-top: 2px;">03</span>
+              <div>
+                <p style="margin: 0; font-size: 13.5px; font-weight: 500;">Then it counts</p>
+                <p style="margin: 6px 0 0; font-size: 12.5px; color: #7C8F97; line-height: 1.65;">
+                  Only the net figure reaches the payroll — and only if the change was read back.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-left: 1px solid #161D21; padding-left: 26px;">
+          <p style="margin: 0; font-size: 12.5px; color: #5A6B72; line-height: 1.75;">
+            Approving is your decision, not the Operator's recommendation carried out. What it
+            proposed does not transfer responsibility for the account.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+</x-dc>
+</body>
+</html>

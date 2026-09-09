@@ -1,0 +1,194 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   The Operator's visual language.
+
+   One rule governs colour here: the spectrum outside the panel is light and
+   means nothing; the three saturated colours inside it each mean something.
+   Green is proven, amber is waiting on a person, red is refused or unproven.
+   Nothing else in the content is allowed to be saturated, because the moment
+   everything is coloured, none of it reads.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --ground:     #050506;   /* behind the panel */
+  --panel:      #08090b;   /* the app surface itself */
+  --raised:     #0a0e11;   /* table headers, inset strips */
+
+  /* Borders carry a slight cool cast rather than being neutral grey: enough
+     hue to read as drawn on purpose, not enough to compete with the three
+     colours that actually mean something. */
+  --line:       #1e2a32;   /* structural borders */
+  --line-soft:  #26343d;   /* dividers inside a block */
+  --line-faint: #182229;   /* between table rows */
+  --grid:       #0e1417;   /* the 80px hairline grid */
+
+  /* A card sits a hair above the panel so an edge is never the only thing
+     separating it from the ground. */
+  --card-bg:    rgba(148, 190, 210, .022);
+
+  --r:          12px;      /* panels, cards, notices */
+  --r-sm:       8px;       /* controls, tags, inputs */
+
+  --ink:        #e8edef;   /* primary text */
+  --ink-2:      #8fa1a8;   /* secondary */
+  --ink-3:      #7c8f97;   /* tertiary */
+  --ink-4:      #5a6b72;   /* labels */
+  --ink-5:      #4a5a61;   /* dim */
+  --ink-6:      #3e4c52;   /* faintest */
+
+  --proven:     #4ade80;
+  --waiting:    #fbbf24;
+  --unproven:   #f87171;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-width: 320px;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+}
+
+::selection { background: rgba(74, 222, 128, .26); color: #eaf7ee; }
+
+/* Figures are the product. They get tabular mono everywhere, so columns line up
+   and a number reads as something you could recompute. */
+.num {
+  font-family: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
+}
+
+.lbl {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+/* --- the shell: a dark panel with spectral light escaping behind it -------- */
+
+.shell { position: relative; padding: 22px; background: var(--ground); min-height: 100vh; }
+
+.shell-bed {
+  position: absolute;
+  inset: 8px;
+  border-radius: 22px;
+  filter: blur(44px);
+  opacity: .92;
+  background: conic-gradient(from 212deg at 50% 50%,
+    #ff2e63, #ff7a2f, #ffc53d, #7be38b, #35c9e8, #6e7bf2, #c24be8, #ff2e63);
+  pointer-events: none;
+}
+
+/* Kills the bloom in the middle so the panel stays black and the light only
+   escapes at the perimeter, as it does in the reference. */
+.shell-core {
+  position: absolute;
+  inset: 34px;
+  border-radius: 18px;
+  filter: blur(58px);
+  background: var(--ground);
+  opacity: .82;
+  pointer-events: none;
+}
+
+.shell-panel {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  min-height: calc(100vh - 44px);
+  background:
+    radial-gradient(circle 900px at 50% 40%,
+      rgba(255, 168, 92, .15), rgba(255, 120, 60, .055) 42%, transparent 68%),
+    var(--panel);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .055), 0 40px 90px -30px rgba(0, 0, 0, .9);
+}
+
+.shell-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .5;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+/* --- pieces the screens share --------------------------------------------- */
+
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--card-bg);
+}
+
+.card-raised { background: var(--raised); }
+
+/* A card whose whole point is its state. The tint is faint on purpose: the
+   colour belongs to the number inside it, not to the box. */
+.card-proven   { border-radius: var(--r); border-color: rgba(74, 222, 128, .26); background: rgba(74, 222, 128, .05); }
+.card-waiting  { border-radius: var(--r); border-color: rgba(251, 191, 36, .26); background: rgba(251, 191, 36, .05); }
+.card-unproven { border-radius: var(--r); border-color: rgba(248, 113, 113, .26); background: rgba(248, 113, 113, .05); }
+
+/* The vertical state strip down the left of a card. */
+.strip {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.glow-proven { text-shadow: 0 0 60px rgba(74, 222, 128, .35); }
+
+.dot { width: 6px; height: 6px; border-radius: 999px; display: inline-block; }
+.dot-proven   { background: var(--proven);   box-shadow: 0 0 10px 1px rgba(74, 222, 128, .7); }
+.dot-waiting  { background: var(--waiting);  box-shadow: 0 0 10px 1px rgba(251, 191, 36, .65); }
+.dot-unproven { background: var(--unproven); box-shadow: 0 0 10px 1px rgba(248, 113, 113, .7); }
+
+.btn-primary {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  letter-spacing: .12em;
+  font-weight: 500;
+  color: var(--ground);
+  background: var(--proven);
+  border-radius: var(--r-sm);
+  padding: 12px 20px;
+  box-shadow: 0 0 26px rgba(74, 222, 128, .28);
+}
+.btn-primary:hover { background: #86efac; }
+.btn-primary:disabled { opacity: .4; box-shadow: none; }
+
+.btn-quiet {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  letter-spacing: .12em;
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 12px 18px;
+}
+.btn-quiet:hover { color: var(--ink); border-color: var(--line-soft); }
+.btn-quiet:disabled { opacity: .4; }
+
+.field {
+  width: 100%;
+  background: #05070a;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 12px 14px;
+  color: var(--ink);
+  font-size: 14px;
+  outline: none;
+}
+.field:focus { border-color: rgba(74, 222, 128, .5); }
+.field::placeholder { color: var(--ink-6); }

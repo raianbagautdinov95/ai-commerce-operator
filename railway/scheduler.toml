@@ -1,0 +1,117 @@
+# Railway service: scheduler (cron)
+#
+# Service settings → Config-as-code file path: railway/scheduler.toml
+# Root Directory: /backend — the same image as the API, a different command.
+#
+# Why a cron service rather than a job that reschedules itself in Redis: both
+# work until something goes wrong, and then they fail differently. A
+# self-rescheduling chain lives in a key, so a flushed Redis or a job that died
+# between firings breaks it permanently while every screen still looks healthy.
+# A cron entry lives in configuration, and when it stops firing that absence is
+# visible — `scheduler_runs` records every completion, the pilot gate refuses a
+# paid launch when a stage has never fired or is over its staleness limit, and
+# /health/operations reports it as critical.
+#
+# `/health/ready` deliberately does *not* fail for a missed run. It answers for
+# this process's ability to serve, and restarting a container fixes nothing
+# about a cron that is not firing.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+watchPatterns = ["backend/**"]
+
+[deploy]
+# Three stages in one entry, three jobs underneath it:
+#
+#   1. trial_warnings — tell anybody whose trial is about to end.
+#   2. shopify_sync   — queue a read-only sync for every connected shop.
+#   3. measurement    — price every applied action whose window has closed.
+#
+# One process, because a shop has to be read before the results that depend on
+# those days can be priced; running them in separate crons in the wrong order
+# would delay every measurement by a day for nothing.
+#
+# Three claims and three freshness records, because they fail for unrelated
+# reasons. Resend being down must not stop a sync. A revoked Shopify token must
+# not stop somebody's trial warning. And "the daily job ran" is not an answer
+# when only two thirds of it did.
+#
+# It warns, reads and prices. It never expires a trial or changes an
+# entitlement: a scheduler outage must not silently extend everybody's trial,
+# and a scheduler bug must not end one early. Whether somebody may use the
+# product is decided from the subscription row, every time it is asked.
+startCommand = "python -m app.daily"
+
+# 07:00 UTC. Early enough that a customer reads a warning during their working
+# day across Europe and the Americas, late enough that a failure has hours of
+# daylight left to be noticed in. The times in the emails are dates, not
+# timestamps, so the hour does not change what anybody is told.
+#
+# It also means a measurement window that closed at midnight is priced within
+# seven hours, from days the same run has just finished reading.
+cronSchedule = "0 7 * * *"
+
+# Deliberately no healthcheckPath: this process exits when it finishes. A health
+# check would fail forever, exactly as it would for the worker.
+
+# No preDeployCommand. Migrations belong to the API service alone, or two
+# services race the same revision.
+
+restartPolicyType = "NEVER"
+
+# --- Variables ---------------------------------------------------------------
+#
+# It needs the same database and the same encryption keyring as the API and the
+# worker — byte-identical, not merely similar — because it reserves email
+# receipts the worker then reads, and reads the Shopify credentials it decides
+# whether to queue a sync for. It needs Redis to put the sync and the emails on
+# the queues the worker already consumes.
+#
+#   APP_ENV=production
+#   DATABASE_URL=<the same as api and worker>
+#   REDIS_URL=<the same as api and worker>
+#   QUEUE_ENABLED=true
+#   CREDENTIAL_ENCRYPTION_KEYS=<identical to api and worker>
+#   CREDENTIAL_ACTIVE_KEY_VERSION=<identical to api and worker>
+#   PUBLIC_APP_URL=https://app.<domain>     # the link inside the emails
+#   SUPPORT_EMAIL=<the address a person reads>
+#   RESEND_API_KEY=<so the worker can deliver what this queues>
+#   LOGIN_EMAIL_FROM=<verified sender>
+#   TRIAL_WARNING_DAYS=3                    # how far ahead to warn
+#   SENTRY_DSN=<same project>               # a silent daily job is the worst kind
+#   SCHEDULER_STALE_AFTER_HOURS=36          # when a missed run becomes a blocker
+#   MEASUREMENT_STALE_AFTER_HOURS=48        # measurement is the most forgiving
+#   DAILY_SYNC_DAYS=7                       # how far back a routine read goes
+#
+# No localhost and no tunnel hostnames. PUBLIC_APP_URL ends up as a link inside
+# an email, which outlives the deploy that sent it by weeks.
+#
+# Dates are computed from the clock in UTC (`scheduler.run_key_for`). The run key
+# is the UTC date, so two instances on either side of a timezone boundary still
+# agree on which day they are claiming.
+#
+# --- Running it twice --------------------------------------------------------
+#
+# Railway usually runs one instance of a cron. "Usually" is not a property to
+# build a mailing on, and a retry or somebody running it by hand is the same
+# problem, so each stage claims its day in `scheduler_runs` behind a unique key
+# before doing anything. The second firing loses the insert and exits quietly.
+# A row left `running` by a process that died is reclaimable after six hours,
+# because otherwise one crash would stop that stage for ever.
+#
+# Underneath that, each stage is idempotent in its own right: email receipts
+# deduplicate, a sync is claimed per shop per day and skipped while one is
+# already in flight, and a measurement is written once and guarded by
+# `measured_at`. That is the last line rather than the only one; neither layer
+# is trusted alone.
+#
+#   python -m app.daily --dry-run              counts; claims nothing, sends nothing
+#   python -m app.daily --only measurement     one stage, for a targeted rerun
+#
+# --- The read is read-only ---------------------------------------------------
+#
+# The sync stage queues `run_shopify_sync`, which reads orders and products and
+# writes nothing back to Shopify. It stores daily aggregates per shop and per
+# product; no order payloads and no customer details are persisted, which is
+# also why `customers/redact` has nothing to erase.

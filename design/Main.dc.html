@@ -1,0 +1,329 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #050506; color: #E8EDEF;
+           font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #4ADE80; text-decoration: none; } a:hover { color: #86EFAC; }
+    .m { font-family: "IBM Plex Mono", ui-monospace, monospace;
+         font-variant-numeric: tabular-nums; }
+    .lbl { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+           font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: #5A6B72; }
+    .rule { height: 1px; background: #161D21; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 1136px; box-sizing: border-box;
+            background: #050506; padding: 28px; position: relative;">
+
+  <!-- spectral bed: light escaping from behind the panel, as in the reference -->
+  <div style="position: absolute; inset: 12px; border-radius: 22px; filter: blur(44px);
+       opacity: .92; background: conic-gradient(from 212deg at 50% 50%, #FF2E63, #FF7A2F, #FFC53D, #7BE38B, #35C9E8, #6E7BF2, #C24BE8, #FF2E63);"></div>
+  <div style="position: absolute; inset: 40px; border-radius: 18px; filter: blur(58px);
+       background: #050506; opacity: .82;"></div>
+
+  <div style="position: relative; border-radius: 14px; overflow: hidden;
+       min-height: 1080px; box-shadow: 0 0 0 1px rgba(255,255,255,.055),
+       0 40px 90px -30px rgba(0,0,0,.9);
+       background: radial-gradient(circle 900px at 50% 44%, rgba(255,168,92,.16), rgba(255,120,60,.06) 42%, transparent 68%), #08090B;">
+  <!-- hairline grid -->
+  <div style="position: absolute; inset: 0; pointer-events: none; opacity: .5;
+       background-image: linear-gradient(#0E1417 1px, transparent 1px),
+                         linear-gradient(90deg, #0E1417 1px, transparent 1px);
+       background-size: 80px 80px;"></div>
+
+  <div style="position: relative;">
+
+    <!-- chrome -->
+    <div style="display: flex; align-items: center; gap: 30px; padding: 0 44px; height: 62px;
+                border-bottom: 1px solid #12191D;">
+      <div style="display: flex; align-items: center; gap: 11px; margin-right: 10px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12.5l2.5 2.5L16 9"/>
+        </svg>
+        <span class="m" style="font-size: 13px; font-weight: 500; letter-spacing: .1em; color: #E8EDEF;">OPERATOR</span>
+      </div>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #E8EDEF; border-bottom: 1px solid #4ADE80; padding: 21px 0;">TODAY</span>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #4A5A61;">PROPOSALS</span>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #4A5A61;">PAYROLL</span>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #4A5A61;">CHANNELS</span>
+      <div style="flex-grow: 1;"></div>
+      <div style="display: flex; align-items: center; gap: 9px;">
+        <span style="width: 6px; height: 6px; border-radius: 999px; background: #4ADE80;
+                     box-shadow: 0 0 10px 1px rgba(74,222,128,.7);"></span>
+        <span class="m" style="font-size: 11.5px; letter-spacing: .08em; color: #7C8F97;">OPERATING</span>
+      </div>
+    </div>
+
+    <!-- the readout -->
+    <div style="padding: 56px 44px 44px; display: grid; grid-template-columns: minmax(0,1fr) 430px; gap: 56px; align-items: end;">
+      <div>
+        <p class="lbl" style="margin: 0 0 22px;">Proven this month · verified against your accounts</p>
+        <div style="display: flex; align-items: flex-start; gap: 8px;">
+          <span class="m" style="font-size: 34px; font-weight: 300; color: #4ADE80; line-height: 1.5;">€</span>
+          <span class="m" style="font-size: 108px; font-weight: 300; color: #4ADE80; line-height: .88;
+                       letter-spacing: -.045em; text-shadow: 0 0 60px rgba(74,222,128,.35);">418.60</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 26px; margin-top: 26px;">
+          <span class="m" style="font-size: 13px; color: #7C8F97;">−&nbsp;€49.00 cost</span>
+          <span style="width: 1px; height: 15px; background: #1C242A;"></span>
+          <span class="m" style="font-size: 13px; color: #E8EDEF;">= €369.60 net</span>
+          <span style="width: 1px; height: 15px; background: #1C242A;"></span>
+          <span class="m" style="font-size: 13px; color: #4ADE80;">8.5× return</span>
+        </div>
+      </div>
+
+      <!-- what is NOT counted -->
+      <div style="border-left: 1px solid #161D21; padding-left: 30px;">
+        <p class="lbl" style="margin: 0 0 18px;">Excluded from that figure</p>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+            <span style="font-size: 13.5px; color: #8FA1A8;">Still inside its window</span>
+            <span class="m" style="font-size: 13.5px; color: #FBBF24;">€162.00</span>
+          </div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+            <span style="font-size: 13.5px; color: #8FA1A8;">Could not be read back</span>
+            <span class="m" style="font-size: 13.5px; color: #F87171;">€41.00</span>
+          </div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 16px;">
+            <span style="font-size: 13.5px; color: #8FA1A8;">Demonstration data</span>
+            <span class="m" style="font-size: 13.5px; color: #4A5A61;">€35,237.70</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- instrument trace -->
+    <div style="padding: 0 44px 8px;">
+      <div class="rule"></div>
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 0 10px;">
+        <span class="lbl">Daily ad spend · 30 days · the drop is where it acted</span>
+        <span class="m" style="font-size: 11.5px; color: #4A5A61;">€0 — €120 / day</span>
+      </div>
+      <svg width="1352" height="132" viewBox="0 0 1352 132" fill="none" style="display: block;">
+        <defs>
+          <linearGradient id="tr" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4ADE80" stop-opacity=".22"/>
+            <stop offset="1" stop-color="#4ADE80" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <line x1="0" y1="131" x2="1352" y2="131" stroke="#161D21"/>
+        <line x1="0" y1="88" x2="1352" y2="88" stroke="#10171A"/>
+        <line x1="0" y1="44" x2="1352" y2="44" stroke="#10171A"/>
+        <path d="M0 34 L58 28 L116 40 L174 26 L232 36 L290 22 L348 38 L406 30 L464 42 L522 32 L580 44
+                 L638 96 L696 92 L754 100 L812 94 L870 104 L928 98 L986 106 L1044 100 L1102 108
+                 L1160 102 L1218 110 L1276 104 L1352 108 L1352 131 L0 131 Z" fill="url(#tr)"/>
+        <path d="M0 34 L58 28 L116 40 L174 26 L232 36 L290 22 L348 38 L406 30 L464 42 L522 32 L580 44
+                 L638 96 L696 92 L754 100 L812 94 L870 104 L928 98 L986 106 L1044 100 L1102 108
+                 L1160 102 L1218 110 L1276 104 L1352 108"
+              stroke="#4ADE80" stroke-width="1.6" stroke-linejoin="round"/>
+        <line x1="609" y1="6" x2="609" y2="131" stroke="#4ADE80" stroke-width="1" stroke-dasharray="3 4" opacity=".55"/>
+        <circle cx="1352" cy="108" r="3.5" fill="#4ADE80"/>
+      </svg>
+      <div style="display: flex; justify-content: space-between; padding: 8px 0 0;">
+        <span class="m" style="font-size: 10.5px; color: #3E4C52;">03 AUG</span>
+        <span class="m" style="font-size: 10.5px; color: #4ADE80;">↑ 18 AUG · NEGATED 3 TERMS</span>
+        <span class="m" style="font-size: 10.5px; color: #3E4C52;">01 SEP</span>
+      </div>
+    </div>
+
+    <!-- two columns -->
+    <div style="display: grid; grid-template-columns: minmax(0,1fr) 430px; gap: 56px; padding: 34px 44px 48px;">
+
+      <div>
+        <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 18px;">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em;">Waiting on you</h2>
+          <span class="lbl">Ordered by money at stake</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+
+          <div style="background: rgba(251,191,36,.05); border: 1px solid rgba(251,191,36,.24);
+                      border-radius: 3px; padding: 20px 22px; display: flex; gap: 22px; align-items: center;">
+            <span class="m" style="font-size: 10.5px; letter-spacing: .12em; color: #FBBF24;
+                         writing-mode: vertical-rl; transform: rotate(180deg);">APPROVE</span>
+            <div style="flex-grow: 1;">
+              <p style="margin: 0; font-size: 15.5px; font-weight: 600;">Stop paying for “luxury dog bowl”</p>
+              <p class="m" style="margin: 8px 0 0; font-size: 12.5px; color: #7C8F97; line-height: 1.6;">
+                300 clicks · 0 orders · 14 days &nbsp;›&nbsp; over your €25.00 unattended ceiling
+              </p>
+            </div>
+            <div style="text-align: right;">
+              <p class="m" style="margin: 0; font-size: 26px; font-weight: 400; color: #FBBF24;">€900.00</p>
+              <p class="lbl" style="margin: 4px 0 0;">at stake</p>
+            </div>
+          </div>
+
+          <div style="background: rgba(248,113,113,.05); border: 1px solid rgba(248,113,113,.24);
+                      border-radius: 3px; padding: 20px 22px; display: flex; gap: 22px; align-items: center;">
+            <span class="m" style="font-size: 10.5px; letter-spacing: .12em; color: #F87171;
+                         writing-mode: vertical-rl; transform: rotate(180deg);">BLOCKED</span>
+            <div style="flex-grow: 1;">
+              <p style="margin: 0; font-size: 15.5px; font-weight: 600;">northstar-goods stopped answering</p>
+              <p class="m" style="margin: 8px 0 0; font-size: 12.5px; color: #7C8F97; line-height: 1.6;">
+                401 · access revoked &nbsp;›&nbsp; nothing has synced for 2 days
+              </p>
+            </div>
+            <div style="text-align: right;">
+              <p class="m" style="margin: 0; font-size: 15px; color: #F87171;">RECONNECT</p>
+              <p class="lbl" style="margin: 4px 0 0;">2d dark</p>
+            </div>
+          </div>
+
+          <div style="background: rgba(251,191,36,.05); border: 1px solid rgba(251,191,36,.24);
+                      border-radius: 3px; padding: 20px 22px; display: flex; gap: 22px; align-items: center;">
+            <span class="m" style="font-size: 10.5px; letter-spacing: .12em; color: #FBBF24;
+                         writing-mode: vertical-rl; transform: rotate(180deg);">APPROVE</span>
+            <div style="flex-grow: 1;">
+              <p style="margin: 0; font-size: 15.5px; font-weight: 600;">Reorder “Pet hair roller” before 14 Sep</p>
+              <p class="m" style="margin: 8px 0 0; font-size: 12.5px; color: #7C8F97; line-height: 1.6;">
+                22 days cover · 31 days lead time &nbsp;›&nbsp; 600 units
+              </p>
+            </div>
+            <div style="text-align: right;">
+              <p class="m" style="margin: 0; font-size: 26px; font-weight: 400; color: #FBBF24;">€1,380</p>
+              <p class="lbl" style="margin: 4px 0 0;">to commit</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: baseline; justify-content: space-between; margin: 32px 0 16px;">
+          <h2 style="margin: 0; font-size: 17px; font-weight: 600; letter-spacing: -.01em;">Handled on its own</h2>
+          <span class="lbl">Inside every limit you set</span>
+        </div>
+
+        <div style="border: 1px solid #12191D; border-radius: 3px; overflow: hidden;">
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 120px 120px 108px;
+                      padding: 11px 20px; border-bottom: 1px solid #12191D; background: #0A0E11;">
+            <span class="lbl">Change</span>
+            <span class="lbl" style="text-align: right;">Predicted</span>
+            <span class="lbl" style="text-align: right;">Measured</span>
+            <span class="lbl" style="text-align: right;">Evidence</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 120px 120px 108px;
+                      align-items: center; padding: 15px 20px; border-bottom: 1px solid #10171A;">
+            <div>
+              <p style="margin: 0; font-size: 14px;">Negated “cheap dog bowl”</p>
+              <p class="m" style="margin: 4px 0 0; font-size: 11.5px; color: #4A5A61;">SP — bowls · 4d ago</p>
+            </div>
+            <span class="m" style="font-size: 13px; color: #7C8F97; text-align: right;">€112.50</span>
+            <span class="m" style="font-size: 14.5px; color: #4ADE80; text-align: right;">€106.50</span>
+            <span class="m" style="font-size: 10.5px; letter-spacing: .1em; color: #4ADE80; text-align: right;">VERIFIED</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 120px 120px 108px;
+                      align-items: center; padding: 15px 20px; border-bottom: 1px solid #10171A;">
+            <div>
+              <p style="margin: 0; font-size: 14px;">Negated “free dog bowl”</p>
+              <p class="m" style="margin: 4px 0 0; font-size: 11.5px; color: #4A5A61;">SP — bowls · 4d ago</p>
+            </div>
+            <span class="m" style="font-size: 13px; color: #7C8F97; text-align: right;">€8.00</span>
+            <span class="m" style="font-size: 14.5px; color: #4ADE80; text-align: right;">€7.10</span>
+            <span class="m" style="font-size: 10.5px; letter-spacing: .1em; color: #4ADE80; text-align: right;">VERIFIED</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0,1fr) 120px 120px 108px;
+                      align-items: center; padding: 15px 20px;">
+            <div>
+              <p style="margin: 0; font-size: 14px;">Negated “dog bowl set cheap”</p>
+              <p class="m" style="margin: 4px 0 0; font-size: 11.5px; color: #4A5A61;">SP — bowls · yesterday</p>
+            </div>
+            <span class="m" style="font-size: 13px; color: #7C8F97; text-align: right;">€41.00</span>
+            <span class="m" style="font-size: 13px; color: #4A5A61; text-align: right;">measuring</span>
+            <span class="m" style="font-size: 10.5px; letter-spacing: .1em; color: #FBBF24; text-align: right;">10 D LEFT</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- rail -->
+      <div style="display: flex; flex-direction: column; gap: 26px;">
+
+        <div style="border-left: 1px solid #161D21; padding-left: 30px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+            <span class="lbl">Blast radius</span>
+            <span class="m" style="font-size: 11px; color: #4ADE80;">EDIT</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px;">
+                <span style="font-size: 13px; color: #8FA1A8;">Changes today</span>
+                <span class="m" style="font-size: 13px;">3 / 20</span>
+              </div>
+              <div style="height: 3px; background: #12191D; border-radius: 2px;">
+                <div style="height: 3px; width: 15%; background: #4ADE80; border-radius: 2px;"></div>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-size: 13px; color: #8FA1A8;">Alone, up to</span>
+              <span class="m" style="font-size: 13px;">€25.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-size: 13px; color: #8FA1A8;">Single step max</span>
+              <span class="m" style="font-size: 13px;">±20%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <span style="font-size: 13px; color: #8FA1A8;">Never touches over</span>
+              <span class="m" style="font-size: 13px;">€50.00/day</span>
+            </div>
+          </div>
+          <div style="margin-top: 22px; padding-top: 18px; border-top: 1px solid #12191D;
+                      display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 13.5px; color: #E8EDEF;">Kill switch</span>
+            <span style="display: inline-flex; align-items: center; padding: 3px; width: 46px; height: 26px;
+                         border-radius: 2px; background: rgba(74,222,128,.12); border: 1px solid rgba(74,222,128,.45);">
+              <span style="width: 18px; height: 18px; border-radius: 1px; background: #4ADE80; margin-left: 20px;
+                           box-shadow: 0 0 10px rgba(74,222,128,.6);"></span>
+            </span>
+          </div>
+        </div>
+
+        <div style="border-left: 1px solid #161D21; padding-left: 30px;">
+          <p class="lbl" style="margin: 0 0 18px;">Channels</p>
+          <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 5px; height: 5px; border-radius: 999px; background: #4ADE80;
+                           box-shadow: 0 0 8px rgba(74,222,128,.8);"></span>
+              <span style="flex-grow: 1; font-size: 13.5px;">pet-supplies-de</span>
+              <span class="m" style="font-size: 11.5px; color: #4A5A61;">4 MIN</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 5px; height: 5px; border-radius: 999px; background: #F87171;
+                           box-shadow: 0 0 8px rgba(248,113,113,.8);"></span>
+              <span style="flex-grow: 1; font-size: 13.5px;">northstar-goods</span>
+              <span class="m" style="font-size: 11.5px; color: #F87171;">REVOKED</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 5px; height: 5px; border-radius: 999px; background: #4ADE80;
+                           box-shadow: 0 0 8px rgba(74,222,128,.8);"></span>
+              <span style="flex-grow: 1; font-size: 13.5px;">Amazon · DE</span>
+              <span class="m" style="font-size: 11.5px; color: #4A5A61;">READ ONLY</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-left: 1px solid #161D21; padding-left: 30px;">
+          <p class="lbl" style="margin: 0 0 12px;">Profit · withheld</p>
+          <p style="margin: 0 0 16px; font-size: 12.5px; color: #7C8F97; line-height: 1.6;">
+            Two of three cost inputs are missing, so no profit figure is shown at all.
+          </p>
+          <div style="display: flex; gap: 6px;">
+            <span style="flex-grow: 1; height: 4px; background: #4ADE80; border-radius: 2px;"></span>
+            <span style="flex-grow: 1; height: 4px; background: #12191D; border-radius: 2px;"></span>
+            <span style="flex-grow: 1; height: 4px; background: #12191D; border-radius: 2px;"></span>
+          </div>
+          <p class="m" style="margin: 10px 0 0; font-size: 11px; color: #4A5A61;">ADS ✓ &nbsp; COGS — &nbsp; FEES —</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+</x-dc>
+</body>
+</html>

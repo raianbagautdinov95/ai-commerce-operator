@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <style>
+    body { margin: 0; background: #0B0B0C; color: #F2F0EC;
+           font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #D8FF6B; } a:hover { color: #E9FFA6; }
+    .serif { font-family: "Instrument Serif", ui-serif, Georgia, serif; font-weight: 400; }
+    .m { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    .lbl { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px;
+           font-weight: 500; letter-spacing: .2em; text-transform: uppercase; color: #6E6C67; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 900px; background: #0B0B0C; position: relative; overflow: hidden;">
+
+  <!-- one warm bloom, low and off-centre -->
+  <div style="position: absolute; width: 900px; height: 480px; left: -140px; bottom: -240px;
+              background: radial-gradient(closest-side, rgba(216,255,107,.10), transparent 70%);
+              filter: blur(60px);"></div>
+
+  <div style="position: relative; padding: 0 64px;">
+
+    <div style="display: flex; align-items: center; justify-content: space-between; height: 72px;
+                border-bottom: 1px solid #1B1B1D;">
+      <span class="serif" style="font-size: 22px; letter-spacing: -.01em;">Operator</span>
+      <div style="display: flex; gap: 30px;">
+        <span class="lbl" style="color: #F2F0EC;">Today</span>
+        <span class="lbl">Proposals</span>
+        <span class="lbl">Payroll</span>
+        <span class="lbl">Channels</span>
+      </div>
+      <span class="lbl">August 2026</span>
+    </div>
+
+    <!-- the sentence carries the page -->
+    <div style="padding: 76px 0 60px; max-width: 1150px;">
+      <p class="lbl" style="margin: 0 0 30px;">The month in one line</p>
+      <h1 class="serif" style="margin: 0; font-size: 82px; line-height: 1.06; letter-spacing: -.025em;">
+        You paid it <span class="m" style="font-size: 58px; letter-spacing: -.03em;">€49</span>.
+        It gave back <span style="color: #D8FF6B;">€418.60</span> you can trace,
+        <span style="font-style: italic; color: #8E8C86;">and lost you €24 once.</span>
+      </h1>
+    </div>
+
+    <div style="height: 1px; background: #1B1B1D;"></div>
+
+    <!-- three columns of proof -->
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 0;
+                border-bottom: 1px solid #1B1B1D;">
+
+      <div style="padding: 34px 40px 34px 0; border-right: 1px solid #1B1B1D;">
+        <p class="lbl" style="margin: 0 0 20px;">What it was paid for</p>
+        <div style="display: flex; flex-direction: column; gap: 17px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 14px;">
+            <span style="font-size: 14.5px; color: #C9C6C0;">“bowl free shipping”</span>
+            <span class="m" style="font-size: 15px; color: #D8FF6B;">€288.00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 14px;">
+            <span style="font-size: 14.5px; color: #C9C6C0;">“cheap dog bowl”</span>
+            <span class="m" style="font-size: 15px; color: #D8FF6B;">€106.50</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 14px;">
+            <span style="font-size: 14.5px; color: #C9C6C0;">“free dog bowl”</span>
+            <span class="m" style="font-size: 15px; color: #D8FF6B;">€24.10</span>
+          </div>
+        </div>
+        <p style="margin: 22px 0 0; font-size: 13px; line-height: 1.7; color: #6E6C67;">
+          Each read back out of the account after the change. Nothing here rests on a prediction.
+        </p>
+      </div>
+
+      <div style="padding: 34px 40px; border-right: 1px solid #1B1B1D;">
+        <p class="lbl" style="margin: 0 0 20px;">What it was not paid for</p>
+        <div style="display: flex; flex-direction: column; gap: 17px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 14px;">
+            <span style="font-size: 14.5px; color: #C9C6C0;">Still measuring</span>
+            <span class="m" style="font-size: 15px; color: #8E8C86;">€162.00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 14px;">
+            <span style="font-size: 14.5px; color: #C9C6C0;">Could not be shown</span>
+            <span class="m" style="font-size: 15px; color: #FF6B4A;">€41.00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 14px;">
+            <span style="font-size: 14.5px; color: #C9C6C0;">Demonstration data</span>
+            <span class="m" style="font-size: 15px; color: #56544F;">€35,237.70</span>
+          </div>
+        </div>
+        <p style="margin: 22px 0 0; font-size: 13px; line-height: 1.7; color: #6E6C67;">
+          Kept visible on purpose. A figure you cannot see is a figure you cannot argue with.
+        </p>
+      </div>
+
+      <div style="padding: 34px 0 34px 40px;">
+        <p class="lbl" style="margin: 0 0 20px;">The one that went wrong</p>
+        <p class="serif" style="margin: 0; font-size: 44px; line-height: 1; color: #FF6B4A; letter-spacing: -.02em;">−€24.00</p>
+        <p style="margin: 16px 0 0; font-size: 14px; line-height: 1.7; color: #C9C6C0;">
+          A bid cut that saved <span class="m">€31</span> and cost <span class="m">€55</span> in sales.
+          You undid it on the fifth day.
+        </p>
+        <p style="margin: 16px 0 0; font-size: 13px; line-height: 1.7; color: #6E6C67;">
+          An operator that cannot show its losses cannot be trusted with its wins.
+        </p>
+      </div>
+    </div>
+
+    <!-- what it may do -->
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 30px 0 44px; gap: 40px;">
+      <div style="display: flex; align-items: center; gap: 34px;">
+        <span class="lbl">Acting alone it may</span>
+        <span class="m" style="font-size: 13.5px; color: #C9C6C0;">≤ €25.00 per change</span>
+        <span style="width: 1px; height: 14px; background: #1B1B1D;"></span>
+        <span class="m" style="font-size: 13.5px; color: #C9C6C0;">≤ 20 changes a day</span>
+        <span style="width: 1px; height: 14px; background: #1B1B1D;"></span>
+        <span class="m" style="font-size: 13.5px; color: #C9C6C0;">never ±20% in one step</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 13px;">
+        <span class="lbl">Kill switch</span>
+        <span style="display: inline-flex; align-items: center; padding: 3px; width: 46px; height: 26px;
+                     border-radius: 999px; background: rgba(216,255,107,.14); border: 1px solid rgba(216,255,107,.4);">
+          <span style="width: 18px; height: 18px; border-radius: 999px; background: #D8FF6B; margin-left: 20px;"></span>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

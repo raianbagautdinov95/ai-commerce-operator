@@ -1,0 +1,51 @@
+# Running the real stack — PostgreSQL, Redis, API, worker — on a laptop.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
+#
+# Deliberately NOT named docker-compose.override.yml. Compose loads that one
+# automatically, so a deployment that ran `docker compose up` in this directory
+# would silently inherit development settings and never know. This file only
+# applies when it is named on the command line.
+#
+# What it changes and why:
+#
+# `_validate_runtime_safety` refuses to start in production or staging unless
+# CORS_ALLOWED_ORIGINS holds explicit https:// origins. That check is right and
+# stays: a browser origin over plain http is a session anybody on the network
+# can read. There is no HTTPS here yet — the domain and certificate are the
+# next piece of work — so this stack declares itself development rather than
+# claiming to be a production deployment it is not.
+#
+# Authentication is left ON regardless, because that is the part worth
+# exercising against real PostgreSQL: row-level security only does anything
+# when a request carries a tenant, and a request only carries a tenant when it
+# carries a token.
+
+services:
+  api:
+    environment:
+      APP_ENV: development
+      AUTH_ENABLED: "true"
+      CORS_ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+
+  worker:
+    environment:
+      APP_ENV: development
+      AUTH_ENABLED: "true"
+
+  migrate:
+    environment:
+      APP_ENV: development
+      # Railway may define a separate privileged migration URL. Locally the
+      # migration service must use the DATABASE_URL supplied by compose.
+      MIGRATION_DATABASE_URL: ""
+
+  frontend:
+    build:
+      args:
+        # Where the browser reaches the API when the app is opened on
+        # localhost:3000, which is how it is opened while developing. Override
+        # FRONTEND_API_BASE to point somewhere else - at the tunnel, say, when
+        # opening the app through the frontend tunnel, since an HTTPS page may
+        # not call http://localhost.
+        NEXT_PUBLIC_API_BASE: ${FRONTEND_API_BASE:-http://localhost:8000}

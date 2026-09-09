@@ -1,0 +1,70 @@
+# One domain, two upstreams: the API under /api, everything else the frontend.
+#
+# Caddy obtains and renews the certificate itself. There is no cron job to
+# forget and no expiry to be surprised by, which matters because a certificate
+# that lapses takes the whole product down for every store at once.
+
+# Global options. The address Let's Encrypt writes to before a certificate
+# expires belongs here, not inside the site block.
+{
+	email {$TLS_EMAIL}
+}
+
+{$PUBLIC_DOMAIN} {
+	# Shopify signs its webhooks over the raw body, and both OAuth callbacks
+	# carry a single-use code. Neither may be cached anywhere on the way.
+	@callbacks path /api/integrations/*/callback /api/webhooks/*
+	header @callbacks Cache-Control "no-store"
+	header @callbacks Referrer-Policy "no-referrer"
+
+	# The API. Everything under /api, plus the health endpoints an
+	# orchestrator or an uptime check needs to reach without a token.
+	handle /api/* {
+		reverse_proxy api:8000
+	}
+	handle /health* {
+		reverse_proxy api:8000
+	}
+	handle /docs* {
+		reverse_proxy api:8000
+	}
+	handle /openapi.json {
+		reverse_proxy api:8000
+	}
+
+	# The application itself.
+	handle {
+		reverse_proxy frontend:3000
+	}
+
+	# HSTS is set by the application for its own responses; this covers the
+	# ones Caddy answers alone, such as a redirect.
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+	# A webhook body is small; a large upload here is somebody probing.
+	request_body {
+		max_size 2MB
+	}
+
+	encode gzip zstd
+
+	log {
+		# An OAuth callback carries its single-use code in the query string, and
+		# an access log is copied, shipped and kept far longer than the ninety
+		# seconds that code is worth anything. These are dropped before the line
+		# is written rather than after somebody notices.
+		format filter {
+			wrap json
+			fields {
+				request>uri query {
+					delete code
+					delete state
+					delete hmac
+					delete signature
+					delete access_token
+				}
+			}
+		}
+		output stdout
+	}
+}

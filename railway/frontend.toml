@@ -1,0 +1,25 @@
+# Railway service: frontend
+#
+# Service settings → Config-as-code file path: railway/frontend.toml
+# Root Directory: /frontend
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+watchPatterns = ["frontend/**"]
+
+[deploy]
+# `/` is the Product Hunter screen and it renders without the API, so a health
+# check here answers whether Next.js is up — not whether the whole product is.
+# That is the right question for this service; the API answers its own.
+healthcheckPath = "/"
+healthcheckTimeout = 60
+
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 10
+
+# NEXT_PUBLIC_API_BASE is a BUILD argument, not a runtime variable: Next.js
+# inlines it into the JavaScript the browser downloads. Setting it as a service
+# variable alone changes nothing — the value baked in at build time is the one
+# that ships. Set it as a build-time variable and redeploy after any change to
+# the API's domain, or the browser will keep calling the old host.

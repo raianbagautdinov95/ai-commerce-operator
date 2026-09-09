@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+      - name: Verify migrations on a clean database
+        working-directory: backend
+        env:
+          DATABASE_URL: sqlite:///./ci_migrations.db
+        run: alembic -c alembic.ini upgrade head
+      - name: Run tests
+        working-directory: backend
+        run: python -m pytest -q
+      - name: Preflight refuses an unconfigured deployment
+        working-directory: backend
+        run: |
+          if python -m app.preflight; then
+            echo "Preflight passed on an empty environment, which it must never do."
+            exit 1
+          fi
+
+  frontend:
+    name: Frontend typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Typecheck
+        working-directory: frontend
+        run: npx tsc --noEmit
+      - name: Production build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_BASE: http://127.0.0.1:8000
+        run: npm run build
+
+  containers:
+    name: Container builds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t aco-api ./backend
+      - run: docker build --build-arg NEXT_PUBLIC_API_BASE=https://api.example.test -t aco-frontend ./frontend

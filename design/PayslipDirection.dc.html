@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #16150F; color: #1A1814;
+           font-family: Archivo, ui-sans-serif, system-ui, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #1F5133; } a:hover { color: #123020; }
+    .m { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    .lbl { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px;
+           font-weight: 500; letter-spacing: .19em; text-transform: uppercase; color: #7D7566; }
+    .row { display: grid; grid-template-columns: 26px minmax(0,1fr) 120px 150px;
+           align-items: baseline; padding: 13px 0; border-bottom: 1px solid #E6E0D2; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 900px; padding: 44px 60px 52px; box-sizing: border-box;
+            background: #16150F;">
+
+  <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 26px;">
+    <span style="font-size: 15px; font-weight: 600; color: #EDE7D6; letter-spacing: -.01em;">Operator</span>
+    <span class="lbl" style="color: #6C6553;">Statement of work · issued 1 September 2026</span>
+  </div>
+
+  <!-- the payslip -->
+  <div style="background: #FCFAF3; box-shadow: 0 26px 60px -18px rgba(0,0,0,.55);
+              display: grid; grid-template-columns: minmax(0,1fr) 392px;">
+
+    <!-- left: the accounting -->
+    <div style="padding: 40px 44px 40px; border-right: 2px dashed #D8D1C0;">
+
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;
+                  padding-bottom: 22px; border-bottom: 2px solid #1A1814;">
+        <div>
+          <p class="lbl" style="margin: 0 0 9px;">Employee</p>
+          <p style="margin: 0; font-size: 27px; font-weight: 700; letter-spacing: -.025em;">The Operator</p>
+          <p class="m" style="margin: 7px 0 0; font-size: 12px; color: #7D7566;">
+            Advertising · inventory · product research
+          </p>
+        </div>
+        <div style="text-align: right;">
+          <p class="lbl" style="margin: 0 0 9px;">Pay period</p>
+          <p class="m" style="margin: 0; font-size: 15px; font-weight: 500;">1 — 31 AUG 2026</p>
+          <p class="m" style="margin: 7px 0 0; font-size: 12px; color: #7D7566;">Month 4 of service</p>
+        </div>
+      </div>
+
+      <!-- earned -->
+      <p class="lbl" style="margin: 26px 0 4px; color: #1F5133;">Earned — proven in your accounts</p>
+      <div>
+        <div class="row">
+          <span class="m" style="font-size: 11px; color: #A8A192;">01</span>
+          <span style="font-size: 15px;">Stopped “bowl free shipping” · 14 days measured</span>
+          <span class="m" style="font-size: 12.5px; color: #7D7566; text-align: right;">no sales lost</span>
+          <span class="m" style="font-size: 17px; font-weight: 600; color: #1F5133; text-align: right;">€288.00</span>
+        </div>
+        <div class="row">
+          <span class="m" style="font-size: 11px; color: #A8A192;">02</span>
+          <span style="font-size: 15px;">Stopped “cheap dog bowl” · 14 days measured</span>
+          <span class="m" style="font-size: 12.5px; color: #A3402C; text-align: right;">−€6.00 sales</span>
+          <span class="m" style="font-size: 17px; font-weight: 600; color: #1F5133; text-align: right;">€106.50</span>
+        </div>
+        <div class="row">
+          <span class="m" style="font-size: 11px; color: #A8A192;">03</span>
+          <span style="font-size: 15px;">Stopped “free dog bowl” · 14 days measured</span>
+          <span class="m" style="font-size: 12.5px; color: #7D7566; text-align: right;">no sales lost</span>
+          <span class="m" style="font-size: 17px; font-weight: 600; color: #1F5133; text-align: right;">€24.10</span>
+        </div>
+      </div>
+
+      <!-- withheld -->
+      <p class="lbl" style="margin: 30px 0 4px; color: #A3402C;">Withheld — not proven, so not paid</p>
+      <div>
+        <div class="row">
+          <span class="m" style="font-size: 11px; color: #A8A192;">04</span>
+          <span style="font-size: 15px;">Stopped “dog bowl amazon” · 5 of 14 days measured</span>
+          <span class="m" style="font-size: 12.5px; color: #7D7566; text-align: right;">still counting</span>
+          <span class="m" style="font-size: 17px; color: #A8A192; text-align: right;">€162.00</span>
+        </div>
+        <div class="row">
+          <span class="m" style="font-size: 11px; color: #A8A192;">05</span>
+          <span style="font-size: 15px;">Stopped “dog bowl set cheap” · absent when re-read</span>
+          <span class="m" style="font-size: 12.5px; color: #A3402C; text-align: right;">unproven</span>
+          <span class="m" style="font-size: 17px; color: #A8A192; text-align: right;">€41.00</span>
+        </div>
+        <div class="row" style="border-bottom: 2px solid #1A1814;">
+          <span class="m" style="font-size: 11px; color: #A8A192;">06</span>
+          <span style="font-size: 15px;">Lowered bid on “dog water bowl” · you undid it</span>
+          <span class="m" style="font-size: 12.5px; color: #A3402C; text-align: right;">−€55.00 sales</span>
+          <span class="m" style="font-size: 17px; font-weight: 600; color: #A3402C; text-align: right;">−€24.00</span>
+        </div>
+      </div>
+
+      <p style="margin: 24px 0 0; font-size: 13.5px; line-height: 1.7; color: #5A5348; max-width: 62ch;">
+        Line 06 is a loss and it is on the statement. An operator that hides what it costs you
+        cannot be believed about what it saves you.
+      </p>
+    </div>
+
+    <!-- right: the stub -->
+    <div style="padding: 40px 40px 40px; background: #F6F2E7; display: flex; flex-direction: column;">
+
+      <p class="lbl" style="margin: 0 0 26px;">This period</p>
+
+      <div style="display: flex; flex-direction: column; gap: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-size: 14px; color: #5A5348;">Proven</span>
+          <span class="m" style="font-size: 16px; font-weight: 600; color: #1F5133;">€418.60</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-size: 14px; color: #5A5348;">Withheld</span>
+          <span class="m" style="font-size: 16px; color: #A8A192;">€203.00</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-size: 14px; color: #5A5348;">Its wages</span>
+          <span class="m" style="font-size: 16px;">−€49.00</span>
+        </div>
+      </div>
+
+      <div style="height: 2px; background: #1A1814; margin: 26px 0 22px;"></div>
+
+      <p class="lbl" style="margin: 0 0 12px;">Net to you</p>
+      <div style="display: flex; align-items: baseline; gap: 6px;">
+        <span class="m" style="font-size: 26px; font-weight: 500; color: #1F5133;">€</span>
+        <span class="m" style="font-size: 60px; font-weight: 600; color: #1F5133; line-height: .9; letter-spacing: -.04em;">369.60</span>
+      </div>
+      <p style="margin: 16px 0 0; font-size: 13.5px; line-height: 1.7; color: #5A5348;">
+        It returned <span class="m" style="font-weight: 600; color: #1A1814;">8.5×</span> what it was
+        paid, on six changes you can each trace back to the account they were made in.
+      </p>
+
+      <div style="flex-grow: 1;"></div>
+
+      <!-- stamp -->
+      <div style="margin-top: 34px; border: 2.5px solid #1F5133; border-radius: 4px;
+                  padding: 14px 16px; transform: rotate(-2.2deg); background: rgba(31,81,51,.045);">
+        <p class="m" style="margin: 0; font-size: 12.5px; font-weight: 600; letter-spacing: .16em;
+                     text-transform: uppercase; color: #1F5133;">Verified against source</p>
+        <p class="m" style="margin: 5px 0 0; font-size: 10.5px; letter-spacing: .08em; color: #4A7A5E;">
+          READ BACK FROM AMAZON ADS · 6 OF 6
+        </p>
+      </div>
+
+      <p class="lbl" style="margin: 22px 0 0; font-size: 9.5px; line-height: 1.8; color: #A8A192;">
+        Every figure is arithmetic on two measured windows.<br>Nothing here was estimated.
+      </p>
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 22px;">
+    <span class="lbl" style="color: #6C6553;">Continue employment · adjust its limits · end it at any time</span>
+    <span class="m" style="font-size: 11.5px; color: #6C6553;">STATEMENT 004 · AUG 2026</span>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

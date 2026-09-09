@@ -1,0 +1,184 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap">
+  <style>
+    body { margin: 0; background: #050506; color: #E8EDEF;
+           font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: #4ADE80; text-decoration: none; } a:hover { color: #86EFAC; }
+    .m { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    .lbl { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+           font-weight: 500; letter-spacing: .18em; text-transform: uppercase; color: #5A6B72; }
+    .strip { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10.5px;
+             letter-spacing: .12em; writing-mode: vertical-rl; transform: rotate(180deg); }
+    .kv { display: flex; justify-content: space-between; align-items: baseline; }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 936px; box-sizing: border-box;
+            background: #050506; padding: 28px; position: relative;">
+
+  <!-- spectral bed: light escaping from behind the panel, as in the reference -->
+  <div style="position: absolute; inset: 12px; border-radius: 22px; filter: blur(44px);
+       opacity: .92; background: conic-gradient(from 324deg at 50% 50%, #FF2E63, #FF7A2F, #FFC53D, #7BE38B, #35C9E8, #6E7BF2, #C24BE8, #FF2E63);"></div>
+  <div style="position: absolute; inset: 40px; border-radius: 18px; filter: blur(58px);
+       background: #050506; opacity: .82;"></div>
+
+  <div style="position: relative; border-radius: 14px; overflow: hidden;
+       min-height: 880px; box-shadow: 0 0 0 1px rgba(255,255,255,.055),
+       0 40px 90px -30px rgba(0,0,0,.9);
+       background: radial-gradient(circle 880px at 62% 40%, rgba(255,150,96,.14), rgba(255,110,70,.05) 44%, transparent 70%), #08090B;">
+  <div style="position: absolute; inset: 0; pointer-events: none; opacity: .5;
+       background-image: linear-gradient(#0E1417 1px, transparent 1px),
+                         linear-gradient(90deg, #0E1417 1px, transparent 1px);
+       background-size: 80px 80px;"></div>
+
+  <div style="position: relative;">
+
+    <div style="display: flex; align-items: center; gap: 30px; padding: 0 44px; height: 62px;
+                border-bottom: 1px solid #12191D;">
+      <div style="display: flex; align-items: center; gap: 11px; margin-right: 10px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12.5l2.5 2.5L16 9"/>
+        </svg>
+        <span class="m" style="font-size: 13px; font-weight: 500; letter-spacing: .1em;">OPERATOR</span>
+      </div>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #4A5A61;">TODAY</span>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #4A5A61;">PROPOSALS</span>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #4A5A61;">PAYROLL</span>
+      <span class="m" style="font-size: 12px; letter-spacing: .06em; color: #E8EDEF; border-bottom: 1px solid #4ADE80; padding: 21px 0;">CHANNELS</span>
+      <div style="flex-grow: 1;"></div>
+      <span class="m" style="font-size: 11.5px; color: #4A5A61;">3 CONNECTED · 1 DARK</span>
+    </div>
+
+    <div style="padding: 44px 44px 40px;">
+      <h1 style="margin: 0 0 12px; font-size: 34px; font-weight: 600; letter-spacing: -.025em;">
+        Where the numbers come from
+      </h1>
+      <p style="margin: 0 0 30px; font-size: 15px; color: #8FA1A8; line-height: 1.65; max-width: 66ch;">
+        Nothing on the other screens is worth more than these connections. A channel that stopped
+        answering is the one failure that looks exactly like everything being fine.
+      </p>
+
+      <!-- broken first -->
+      <div style="border: 1px solid rgba(248,113,113,.3); border-radius: 3px;
+                  background: rgba(248,113,113,.04); margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 22px; padding: 24px;">
+          <span class="strip" style="color: #F87171;">REVOKED</span>
+          <div style="flex-grow: 1;">
+            <p style="margin: 0; font-size: 17px; font-weight: 600;">northstar-goods.myshopify.com</p>
+            <p style="margin: 8px 0 0; font-size: 13.5px; color: #8FA1A8; line-height: 1.6;">
+              Shopify rejected the token 2 days ago. The app was uninstalled from the store, or its
+              access revoked. The stored credential has been deleted.
+            </p>
+          </div>
+          <div style="text-align: right; flex-shrink: 0;">
+            <p class="m" style="margin: 0 0 12px; font-size: 11.5px; color: #F87171;">DARK FOR 2 DAYS</p>
+            <span class="m" style="display: inline-block; font-size: 11.5px; letter-spacing: .12em;
+                         font-weight: 500; color: #07090B; background: #4ADE80; border-radius: 3px;
+                         padding: 12px 20px; box-shadow: 0 0 24px rgba(74,222,128,.28);">RECONNECT</span>
+          </div>
+        </div>
+        <div style="border-top: 1px solid rgba(248,113,113,.18); padding: 13px 24px; background: #05070A;">
+          <p class="m" style="margin: 0; font-size: 11.5px; color: #F87171;">
+            401 · the app was most likely uninstalled or its access revoked
+          </p>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 20px;">
+
+        <!-- healthy -->
+        <div style="border: 1px solid #12191D; border-radius: 3px; padding: 24px;">
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding-bottom: 20px;
+                      border-bottom: 1px solid #10171A;">
+            <span style="width: 7px; height: 7px; border-radius: 999px; background: #4ADE80; margin-top: 7px;
+                         box-shadow: 0 0 10px 1px rgba(74,222,128,.75); flex-shrink: 0;"></span>
+            <div>
+              <p style="margin: 0; font-size: 16px; font-weight: 600;">pet-supplies-de.myshopify.com</p>
+              <p class="m" style="margin: 6px 0 0; font-size: 11.5px; color: #4A5A61;">SHOPIFY · ORDERS, PRODUCTS, INVENTORY</p>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px; padding-top: 20px;">
+            <div class="kv">
+              <span style="font-size: 13.5px; color: #8FA1A8;">Last sync</span>
+              <span class="m" style="font-size: 13px;">4 min ago</span>
+            </div>
+            <div class="kv">
+              <span style="font-size: 13.5px; color: #8FA1A8;">Order notifications</span>
+              <span class="m" style="font-size: 13px; color: #4ADE80;">ON · 3 EVENTS</span>
+            </div>
+            <div class="kv">
+              <span style="font-size: 13.5px; color: #8FA1A8;">Changes allowed</span>
+              <span class="m" style="font-size: 13px; color: #7C8F97;">NONE · READS ONLY</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- amazon, writes off -->
+        <div style="border: 1px solid rgba(251,191,36,.26); border-radius: 3px; padding: 24px;
+                    background: rgba(251,191,36,.03);">
+          <div style="display: flex; align-items: flex-start; gap: 14px; padding-bottom: 20px;
+                      border-bottom: 1px solid rgba(251,191,36,.14);">
+            <span style="width: 7px; height: 7px; border-radius: 999px; background: #FBBF24; margin-top: 7px;
+                         box-shadow: 0 0 10px 1px rgba(251,191,36,.7); flex-shrink: 0;"></span>
+            <div>
+              <p style="margin: 0; font-size: 16px; font-weight: 600;">Amazon · Germany</p>
+              <p class="m" style="margin: 6px 0 0; font-size: 11.5px; color: #4A5A61;">SELLING PARTNER + ADVERTISING</p>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 14px; padding-top: 20px;">
+            <div class="kv">
+              <span style="font-size: 13.5px; color: #8FA1A8;">Last sync</span>
+              <span class="m" style="font-size: 13px;">1 hour ago</span>
+            </div>
+            <div class="kv">
+              <span style="font-size: 13.5px; color: #8FA1A8;">Advertising</span>
+              <span class="m" style="font-size: 13px; color: #FBBF24;">READING · WRITES OFF</span>
+            </div>
+            <div class="kv">
+              <span style="font-size: 13.5px; color: #8FA1A8;">Throttled today</span>
+              <span class="m" style="font-size: 13px; color: #7C8F97;">4.3 s waited</span>
+            </div>
+          </div>
+          <div style="margin-top: 20px; padding-top: 18px; border-top: 1px solid rgba(251,191,36,.14);">
+            <p style="margin: 0; font-size: 12.5px; color: #8FA1A8; line-height: 1.65;">
+              Advertising can read but not write. Turn writing on and the Operator may add negative
+              keywords within your limits — nothing else.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- add -->
+      <div style="border: 1px dashed #1C242A; border-radius: 3px; padding: 26px 24px; margin-top: 20px;
+                  display: flex; align-items: center; justify-content: space-between; gap: 30px;">
+        <div>
+          <p style="margin: 0; font-size: 15px; font-weight: 600;">Connect another store</p>
+          <p style="margin: 7px 0 0; font-size: 13.5px; color: #8FA1A8; line-height: 1.6;">
+            A new store starts by proposing only. Nothing changes in it until you say so.
+          </p>
+        </div>
+        <div style="display: flex; gap: 10px; flex-shrink: 0;">
+          <span class="m" style="font-size: 11.5px; letter-spacing: .1em; color: #8FA1A8;
+                       border: 1px solid #1C242A; border-radius: 3px; padding: 12px 18px;">SHOPIFY</span>
+          <span class="m" style="font-size: 11.5px; letter-spacing: .1em; color: #8FA1A8;
+                       border: 1px solid #1C242A; border-radius: 3px; padding: 12px 18px;">AMAZON</span>
+          <span class="m" style="font-size: 11.5px; letter-spacing: .1em; color: #8FA1A8;
+                       border: 1px solid #1C242A; border-radius: 3px; padding: 12px 18px;">WOOCOMMERCE</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+</x-dc>
+</body>
+</html>

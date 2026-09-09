@@ -1,0 +1,50 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+.next-dev/
+.next-build/
+.next-production/
+*.db
+
+# Database backup artefacts
+backups/
+
+# Generated artefacts
+creative_out/
+creative_output/
+tsconfig.tsbuildinfo
+.pytest_cache/
+
+# The seeded design canvas is generated from the .dc.html sources and carries
+# ~2.5 MB of editor payload. Re-seed it, do not version it.
+design/operator-cycle.html
+
+# --- Database dumps, exports and keys ----------------------------------------
+# Two of these were committed and shipped: 704K each, holding a user's address
+# and an encrypted Shopify token. Encrypted is not the same as harmless, and a
+# dump in a repository is a dump in every clone of it for ever.
+#
+# Deliberately specific rather than a blanket *.sql: schema.sql and the
+# migrations are SQL this project needs, and a rule that hides them would be
+# removed by the first person it inconvenienced.
+*.bak
+*.dump
+*.sqlite
+*.sqlite3
+*-dump.sql
+*_dump.sql
+*.dump.sql
+dump*.sql
+backup*.sql
+*.tar.gz
+*.tgz
+*.pem
+*.p12
+*.pfx
+id_rsa
+id_ed25519

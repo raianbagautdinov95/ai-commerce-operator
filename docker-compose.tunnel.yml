@@ -1,0 +1,27 @@
+# Pointing the Shopify callback at a tunnel, for a store test on a laptop.
+#
+# Shopify will not send an OAuth callback or a webhook to localhost: it needs a
+# public HTTPS address it can reach. A tunnel gives one without a deployment.
+#
+#   docker run -d --name aco-tunnel --network ai-commerce-operator_default \
+#     cloudflare/cloudflared:latest tunnel --no-autoupdate --url http://api:8000
+#   TUNNEL_BASE=https://<the hostname it prints> \
+#   ENV_FILE=.env.production docker compose --env-file .env.production \
+#     -f docker-compose.yml -f docker-compose.local.yml -f docker-compose.tunnel.yml \
+#     up -d api
+#
+# The host is a variable rather than a literal because a quick tunnel gets a new
+# name every time it starts. Nothing here belongs in .env.production: these
+# addresses are true for one session, and writing them there would leave a dead
+# hostname behind as the deployment's configuration.
+#
+# Only `api` reads these. The worker does not register webhooks or build
+# authorize URLs, so it is left alone — restarting it would reset the uptime
+# that is currently the evidence its Redis fix worked.
+
+services:
+  api:
+    environment:
+      SHOPIFY_REDIRECT_URI: ${TUNNEL_BASE:?Set TUNNEL_BASE to the tunnel's https address}/api/integrations/shopify/callback
+      SHOPIFY_WEBHOOK_URI: ${TUNNEL_BASE:?Set TUNNEL_BASE to the tunnel's https address}/api/webhooks/shopify
+      CORS_ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000,${FRONTEND_TUNNEL_BASE:?Set FRONTEND_TUNNEL_BASE to the frontend tunnel's https address}

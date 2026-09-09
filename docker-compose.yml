@@ -1,0 +1,124 @@
+services:
+  redis:
+    image: redis:7.4-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: aco
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: aco
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    # schema.sql is NOT mounted as an init script. Postgres would run it on first
+    # boot and then `alembic upgrade head` would fail on "relation already
+    # exists" — two sources of truth for one schema. Migrations own the schema;
+    # schema.sql stays as documentation of its shape.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aco -d aco"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build: ./backend
+    env_file: ${ENV_FILE:-.env}
+    environment:
+      DATABASE_URL: postgresql+psycopg://aco:${POSTGRES_PASSWORD}@db:5432/aco
+    depends_on:
+      db:
+        condition: service_healthy
+    command: alembic -c alembic.ini upgrade head
+    restart: "no"
+
+  api:
+    build: ./backend
+    env_file: ${ENV_FILE:-.env}
+    environment:
+      APP_ENV: production
+      # A non-superuser role, so row-level security applies. RLS never
+      # constrains a superuser, which is what the owner is.
+      DATABASE_URL: postgresql+psycopg://${APP_DB_ROLE:-aco_app}:${APP_DB_PASSWORD:?Set APP_DB_PASSWORD}@db:5432/aco
+      QUEUE_ENABLED: "true"
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    restart: unless-stopped
+
+  worker:
+    build: ./backend
+    env_file: ${ENV_FILE:-.env}
+    environment:
+      APP_ENV: production
+      # A non-superuser role, so row-level security applies. RLS never
+      # constrains a superuser, which is what the owner is.
+      DATABASE_URL: postgresql+psycopg://${APP_DB_ROLE:-aco_app}:${APP_DB_PASSWORD:?Set APP_DB_PASSWORD}@db:5432/aco
+      QUEUE_ENABLED: "true"
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    # Not `rq worker --url`: that builds its own Redis connection and takes
+    # no say in how it behaves. app.worker uses the same connection the API
+    # enqueues through — keepalives and retries included — which is what
+    # stopped this container dying seven times an hour.
+    command: python -m app.worker
+    # The image's HEALTHCHECK asks for an HTTP response, which a worker does not
+    # serve — inherited, it reports unhealthy forever while working perfectly,
+    # and an orchestrator that restarts unhealthy containers would loop it.
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.worker_health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # The browser's address for the API, fixed at BUILD time - changing it
+        # means rebuilding this image, not restarting it. There is deliberately
+        # no default: a wrong guess here is invisible until the browser fails to
+        # reach an API that is running perfectly. docker-compose.local.yml
+        # supplies the local value and docker-compose.production.yml the public
+        # one; see ops/DEPLOY.md.
+        # No usable default on purpose, and not `:?` either: compose resolves
+        # this file's value before an override replaces it, so a required
+        # variable here would fire even when docker-compose.local.yml supplies
+        # one. The sentinel travels into the build instead, and the Dockerfile
+        # refuses it there with a message saying which file to add.
+        NEXT_PUBLIC_API_BASE: ${FRONTEND_API_BASE:-UNSET}
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  dbdata:
+  redisdata:

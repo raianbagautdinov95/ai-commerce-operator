@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap">
+  <style>
+    body { margin: 0; background: #05070A; color: #EEF3F5;
+           font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+           -webkit-font-smoothing: antialiased; }
+    a { color: oklch(80% .16 165); } a:hover { color: oklch(88% .13 165); }
+    .m { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    .lbl { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 10px;
+           font-weight: 500; letter-spacing: .2em; text-transform: uppercase;
+           color: oklch(62% .02 220); }
+    .glass { background: linear-gradient(157deg, rgba(255,255,255,.055), rgba(255,255,255,.018));
+             border: 1px solid rgba(255,255,255,.09); border-radius: 18px;
+             box-shadow: inset 0 1px 0 rgba(255,255,255,.11), 0 22px 50px -26px rgba(0,0,0,.9); }
+  </style>
+</helmet>
+
+<div style="width: 1440px; min-height: 900px; position: relative; overflow: hidden; background: #05070A;">
+
+  <!-- aurora, layered rather than one lazy sweep -->
+  <div style="position: absolute; width: 980px; height: 620px; left: -180px; top: -220px;
+              background: radial-gradient(closest-side, oklch(72% .17 168 / .34), transparent 72%);
+              filter: blur(38px);"></div>
+  <div style="position: absolute; width: 760px; height: 520px; right: -120px; top: -160px;
+              background: radial-gradient(closest-side, oklch(66% .15 215 / .30), transparent 72%);
+              filter: blur(42px);"></div>
+  <div style="position: absolute; width: 620px; height: 420px; left: 44%; top: 210px;
+              background: radial-gradient(closest-side, oklch(62% .13 285 / .20), transparent 74%);
+              filter: blur(52px);"></div>
+
+  <!-- grain, so it is atmosphere and not a gradient -->
+  <svg style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: .30; mix-blend-mode: overlay;" aria-hidden="true">
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" stitchTiles="stitch"/></filter>
+    <rect width="100%" height="100%" filter="url(#grain)"/>
+  </svg>
+
+  <div style="position: relative; padding: 0 52px;">
+
+    <!-- chrome -->
+    <div style="display: flex; align-items: center; gap: 30px; height: 68px;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-right: 8px;">
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="oklch(80% .16 165)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5L16 9.5"/>
+        </svg>
+        <span style="font-size: 15px; font-weight: 600; letter-spacing: -.015em;">Operator</span>
+      </div>
+      <span style="font-size: 13.5px; color: #EEF3F5;">Today</span>
+      <span style="font-size: 13.5px; color: oklch(58% .02 220);">Proposals</span>
+      <span style="font-size: 13.5px; color: oklch(58% .02 220);">Payroll</span>
+      <span style="font-size: 13.5px; color: oklch(58% .02 220);">Channels</span>
+      <div style="flex-grow: 1;"></div>
+      <div class="glass" style="display: flex; align-items: center; gap: 9px; padding: 7px 15px; border-radius: 999px;">
+        <span style="width: 6px; height: 6px; border-radius: 999px; background: oklch(80% .16 165);
+                     box-shadow: 0 0 12px 2px oklch(80% .16 165 / .8);"></span>
+        <span style="font-size: 12.5px; color: #C6D2D6;">Operating</span>
+      </div>
+    </div>
+
+    <!-- hero -->
+    <div style="display: grid; grid-template-columns: minmax(0,1fr) 400px; gap: 48px;
+                align-items: end; padding: 58px 0 46px;">
+      <div>
+        <p class="lbl" style="margin: 0 0 24px;">Proven this month</p>
+        <div style="display: flex; align-items: flex-start; gap: 10px;">
+          <span style="font-size: 40px; font-weight: 300; line-height: 1.5;
+                       color: oklch(84% .14 165);">€</span>
+          <span style="font-size: 122px; font-weight: 300; line-height: .84; letter-spacing: -.055em;
+                       background: linear-gradient(180deg, oklch(94% .09 168), oklch(72% .18 168));
+                       -webkit-background-clip: text; background-clip: text; color: transparent;
+                       filter: drop-shadow(0 0 44px oklch(72% .18 168 / .45));">418.60</span>
+        </div>
+        <p style="margin: 30px 0 0; font-size: 16.5px; line-height: 1.65; color: #A9B8BE; max-width: 46ch;">
+          Six changes, each read back out of your account afterwards. It was paid
+          <span class="m" style="color: #EEF3F5;">€49.00</span> and returned
+          <span class="m" style="color: oklch(84% .14 165);">8.5×</span> that.
+        </p>
+      </div>
+
+      <div class="glass" style="padding: 26px 28px;">
+        <p class="lbl" style="margin: 0 0 20px;">Excluded from that figure</p>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <span style="font-size: 13.5px; color: #A9B8BE;">Inside its window</span>
+            <span class="m" style="font-size: 14px; color: oklch(82% .14 85);">€162.00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <span style="font-size: 13.5px; color: #A9B8BE;">Not read back</span>
+            <span class="m" style="font-size: 14px; color: oklch(70% .17 25);">€41.00</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <span style="font-size: 13.5px; color: #A9B8BE;">Demonstration</span>
+            <span class="m" style="font-size: 14px; color: oklch(55% .02 220);">€35,237.70</span>
+          </div>
+        </div>
+        <p style="margin: 20px 0 0; font-size: 12.5px; line-height: 1.65; color: oklch(58% .02 220);">
+          None of it is in the number on the left, and none of it will be until it is proven.
+        </p>
+      </div>
+    </div>
+
+    <!-- ledger in glass -->
+    <div class="glass" style="overflow: hidden;">
+      <div style="display: grid; grid-template-columns: minmax(0,1fr) 130px 130px 150px 140px;
+                  padding: 15px 26px; border-bottom: 1px solid rgba(255,255,255,.07);">
+        <span class="lbl">Change</span>
+        <span class="lbl" style="text-align: right;">Was costing</span>
+        <span class="lbl" style="text-align: right;">Sales lost</span>
+        <span class="lbl" style="text-align: right;">Net</span>
+        <span class="lbl" style="text-align: right;">Evidence</span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0,1fr) 130px 130px 150px 140px;
+                  align-items: center; padding: 17px 26px; border-bottom: 1px solid rgba(255,255,255,.05);">
+        <span style="font-size: 14.5px;">Negated “bowl free shipping”</span>
+        <span class="m" style="font-size: 13px; color: #8FA0A6; text-align: right;">€288.00</span>
+        <span class="m" style="font-size: 13px; color: #66757B; text-align: right;">—</span>
+        <span class="m" style="font-size: 18px; color: oklch(84% .14 165); text-align: right;">€288.00</span>
+        <span style="text-align: right;"><span class="lbl" style="color: oklch(84% .14 165);">Verified</span></span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0,1fr) 130px 130px 150px 140px;
+                  align-items: center; padding: 17px 26px; border-bottom: 1px solid rgba(255,255,255,.05);">
+        <span style="font-size: 14.5px;">Negated “cheap dog bowl”</span>
+        <span class="m" style="font-size: 13px; color: #8FA0A6; text-align: right;">€120.50</span>
+        <span class="m" style="font-size: 13px; color: oklch(70% .17 25); text-align: right;">−€6.00</span>
+        <span class="m" style="font-size: 18px; color: oklch(84% .14 165); text-align: right;">€106.50</span>
+        <span style="text-align: right;"><span class="lbl" style="color: oklch(84% .14 165);">Verified</span></span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0,1fr) 130px 130px 150px 140px;
+                  align-items: center; padding: 17px 26px; border-bottom: 1px solid rgba(255,255,255,.05);">
+        <span style="font-size: 14.5px;">Lowered bid on “dog water bowl”</span>
+        <span class="m" style="font-size: 13px; color: #8FA0A6; text-align: right;">€92.00</span>
+        <span class="m" style="font-size: 13px; color: oklch(70% .17 25); text-align: right;">−€55.00</span>
+        <span class="m" style="font-size: 18px; color: oklch(70% .17 25); text-align: right;">−€24.00</span>
+        <span style="text-align: right;"><span class="lbl">Undone</span></span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0,1fr) 130px 130px 150px 140px;
+                  align-items: center; padding: 17px 26px; opacity: .6;">
+        <span style="font-size: 14.5px;">Negated “dog bowl set cheap”</span>
+        <span class="m" style="font-size: 13px; color: #8FA0A6; text-align: right;">€41.00</span>
+        <span class="m" style="font-size: 13px; color: #66757B; text-align: right;">—</span>
+        <span class="m" style="font-size: 18px; color: #66757B; text-align: right;">€0.00</span>
+        <span style="text-align: right;"><span class="lbl" style="color: oklch(70% .17 25);">Unproven</span></span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 24px; padding: 24px 0 48px;">
+      <div class="glass" style="padding: 22px 26px;">
+        <p style="margin: 0 0 9px; font-size: 14.5px; font-weight: 600;">Why a loss is on this page</p>
+        <p style="margin: 0; font-size: 13.5px; line-height: 1.7; color: #A9B8BE;">
+          The bid cut saved <span class="m">€31.00</span> and cost <span class="m">€55.00</span> in
+          sales. An operator that cannot show its losses cannot be trusted with its wins.
+        </p>
+      </div>
+      <div class="glass" style="padding: 22px 26px;">
+        <p style="margin: 0 0 9px; font-size: 14.5px; font-weight: 600;">Why €41.00 counts as nothing</p>
+        <p style="margin: 0; font-size: 13.5px; line-height: 1.7; color: #A9B8BE;">
+          Amazon accepted it and the keyword was gone when we looked again. It may have worked;
+          we cannot show it, so it earns nothing.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

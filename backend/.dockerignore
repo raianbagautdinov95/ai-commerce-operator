@@ -1,0 +1,34 @@
+# What must never reach a deployed image.
+#
+# There was no such file, so `COPY . .` shipped everything in this directory:
+# two database dumps, the live development SQLite database with real rows in it,
+# a 145 MB Windows virtualenv that cannot run on Linux anyway, and the owner's
+# private tools. A deployed container held a user's email address and an
+# encrypted Shopify token for no reason at all.
+
+# Data. None of it belongs anywhere near a running service.
+*.bak
+*.dump
+*.db
+*.sqlite
+*.sqlite3
+aco_dev*
+
+# Secrets. The orchestrator supplies these; a stray copy in the image would
+# quietly answer for them instead.
+.env
+.env.*
+!.env.example
+
+# Built on the host, for the host. The image installs its own.
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# The owner's own scripts, deliberately outside the repository. Nothing in the
+# application imports them, so nothing needs them at runtime.
+tools/
