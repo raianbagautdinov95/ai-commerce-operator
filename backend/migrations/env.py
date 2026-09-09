@@ -7,6 +7,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.db.models import Base
+from app.db.urls import normalize_sqlalchemy_url
 
 
 config = context.config
@@ -28,6 +29,7 @@ if config.config_file_name is not None:
 # exactly that case and is ignored everywhere else.
 database_url = os.getenv("MIGRATION_DATABASE_URL") or os.getenv("DATABASE_URL")
 if database_url:
+    database_url = normalize_sqlalchemy_url(database_url)
     config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
 
 target_metadata = Base.metadata

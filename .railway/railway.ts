@@ -3,6 +3,7 @@ import {
   github,
   group,
   postgres,
+  preserve,
   project,
   redis,
   service,
@@ -10,31 +11,31 @@ import {
 
 const repository = "raianbagautdinov95/ai-commerce-operator";
 
-export default defineRailway((ctx) => {
+export default defineRailway(() => {
   const database = postgres("postgres");
   const cache = redis("redis");
 
-  // Values shared by all Python processes live once in Railway Shared
-  // Variables. APP_DATABASE_URL must use the restricted aco_app role; only
+  // Secret values are installed directly in Railway and preserved by IaC.
+  // DATABASE_URL must use the restricted aco_app role; only
   // MIGRATION_DATABASE_URL below receives Railway's owner connection.
   const backendEnvironment = {
     APP_ENV: "production",
-    DATABASE_URL: ctx.shared.APP_DATABASE_URL,
+    DATABASE_URL: preserve(),
     REDIS_URL: cache.env.REDIS_URL,
     QUEUE_ENABLED: "true",
     AUTH_ENABLED: "true",
-    CREDENTIAL_ENCRYPTION_KEYS: ctx.shared.CREDENTIAL_ENCRYPTION_KEYS,
-    CREDENTIAL_ACTIVE_KEY_VERSION: ctx.shared.CREDENTIAL_ACTIVE_KEY_VERSION,
-    SHOPIFY_CLIENT_ID: ctx.shared.SHOPIFY_CLIENT_ID,
-    SHOPIFY_CLIENT_SECRET: ctx.shared.SHOPIFY_CLIENT_SECRET,
+    CREDENTIAL_ENCRYPTION_KEYS: preserve(),
+    CREDENTIAL_ACTIVE_KEY_VERSION: preserve(),
+    SHOPIFY_CLIENT_ID: preserve(),
+    SHOPIFY_CLIENT_SECRET: preserve(),
     SHOPIFY_API_VERSION: "2026-01",
     SHOPIFY_WEBHOOK_URI:
       "https://api.aicommerceoperator.com/api/webhooks/shopify",
-    RESEND_API_KEY: ctx.shared.RESEND_API_KEY,
-    LOGIN_EMAIL_FROM: ctx.shared.LOGIN_EMAIL_FROM,
+    RESEND_API_KEY: preserve(),
+    LOGIN_EMAIL_FROM: preserve(),
     PUBLIC_APP_URL: "https://app.aicommerceoperator.com",
-    SUPPORT_EMAIL: ctx.shared.SUPPORT_EMAIL,
-    SENTRY_DSN: ctx.shared.SENTRY_DSN,
+    SUPPORT_EMAIL: preserve(),
+    SENTRY_DSN: preserve(),
     SENTRY_TRACES_SAMPLE_RATE: "0.1",
   };
 
@@ -57,17 +58,17 @@ export default defineRailway((ctx) => {
     env: {
       ...backendEnvironment,
       MIGRATION_DATABASE_URL: database.env.DATABASE_URL,
-      APP_DB_PASSWORD: ctx.shared.APP_DB_PASSWORD,
+      APP_DB_PASSWORD: preserve(),
       APP_DB_ROLE: "aco_app",
-      JWT_SECRET: ctx.shared.JWT_SECRET,
+      JWT_SECRET: preserve(),
       CORS_ALLOWED_ORIGINS: "https://app.aicommerceoperator.com",
       SHOPIFY_REDIRECT_URI:
         "https://api.aicommerceoperator.com/api/integrations/shopify/callback",
       SHOPIFY_SCOPES: "read_products,read_orders,read_inventory",
-      LEGAL_ENTITY: ctx.shared.LEGAL_ENTITY,
-      LEGAL_ADDRESS: ctx.shared.LEGAL_ADDRESS,
-      PRIVACY_CONTACT: ctx.shared.PRIVACY_CONTACT,
-      SUPPORT_RESPONSE_TIME: ctx.shared.SUPPORT_RESPONSE_TIME,
+      LEGAL_ENTITY: preserve(),
+      LEGAL_ADDRESS: preserve(),
+      PRIVACY_CONTACT: preserve(),
+      SUPPORT_RESPONSE_TIME: preserve(),
     },
   });
 
@@ -122,8 +123,8 @@ export default defineRailway((ctx) => {
     },
     env: {
       NEXT_PUBLIC_API_BASE: "https://api.aicommerceoperator.com",
-      NEXT_PUBLIC_SUPPORT_EMAIL: ctx.shared.SUPPORT_EMAIL,
-      NEXT_PUBLIC_SUPPORT_RESPONSE_TIME: ctx.shared.SUPPORT_RESPONSE_TIME,
+      NEXT_PUBLIC_SUPPORT_EMAIL: preserve(),
+      NEXT_PUBLIC_SUPPORT_RESPONSE_TIME: preserve(),
     },
   });
 

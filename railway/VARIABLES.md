@@ -29,7 +29,7 @@ first sync fails loudly at boot instead.
 | Variable | api | worker | frontend | Notes |
 |---|:--:|:--:|:--:|---|
 | `APP_ENV` | ✓ | ✓ | | `production`. Below `staging`, every safety check is skipped by design. |
-| `APP_DATABASE_URL` | ✓ | ✓ | | Railway shared variable mapped to `DATABASE_URL`. Use the `aco_app` role, not the owner — see `ops/RAILWAY.md`. |
+| `DATABASE_URL` | ✓ | ✓ | | Set identically on API, worker and scheduler. Use the `aco_app` role, not the owner — see `ops/RAILWAY.md`. IaC preserves the secret value. |
 | `REDIS_URL` | ✓ | ✓ | | Must be identical, or the API enqueues where nobody listens. |
 | `QUEUE_ENABLED` | ✓ | ✓ | | `true`. The API refuses to start in production without it. |
 | `AUTH_ENABLED` | ✓ | ✓ | | `true`. With it off every request is the same tenant. |

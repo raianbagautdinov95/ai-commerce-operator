@@ -17,8 +17,11 @@ from sqlalchemy import create_engine, event, inspect, text
 from sqlalchemy.orm import Session, sessionmaker
 
 from .models import Base
+from .urls import normalize_sqlalchemy_url
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./aco_dev.db")
+DATABASE_URL = normalize_sqlalchemy_url(
+    os.getenv("DATABASE_URL", "sqlite:///./aco_dev.db")
+)
 
 # SQLite + FastAPI's threadpool needs check_same_thread disabled.
 _connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
