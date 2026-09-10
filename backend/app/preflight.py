@@ -172,6 +172,28 @@ def _check_database(env) -> Check:
                  "" if ok else _SQLITE_FIX)
 
 
+def _without_credentials(url: str) -> str:
+    """Where it points, never how to get in.
+
+    A managed Redis URL carries its password in the userinfo, and this report is
+    made to be read out loud, pasted into an issue and kept in CI output. The
+    host is the part somebody is checking; the password is the part that must
+    not travel with it.
+
+    Anything unparseable degrades to "set" rather than to the original string —
+    the failure mode of a redactor has to be silence, not the secret.
+    """
+    try:
+        parsed = urlparse(url)
+    except ValueError:
+        return "set"
+    if not parsed.hostname:
+        return "set"
+    port = f":{parsed.port}" if parsed.port else ""
+    path = parsed.path if parsed.path not in ("", "/") else ""
+    return f"{parsed.scheme}://{parsed.hostname}{port}{path}"
+
+
 def _check_queue(env) -> list[Check]:
     enabled = _flag(env, "QUEUE_ENABLED")
     redis_url = _get(env, "REDIS_URL")
@@ -181,7 +203,7 @@ def _check_queue(env) -> list[Check]:
               "Set QUEUE_ENABLED=true and run the worker. Without it every sync "
               "endpoint answers 503, so connecting a store achieves nothing."),
         Check("Redis", bool(redis_url), BLOCKER,
-              redis_url or "missing",
+              _without_credentials(redis_url) if redis_url else "missing",
               "Set REDIS_URL, e.g. redis://redis:6379/0"),
     ]
 

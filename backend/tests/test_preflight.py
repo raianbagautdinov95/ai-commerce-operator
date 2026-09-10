@@ -307,3 +307,51 @@ def test_production_settings_are_judged_strictly_without_the_flag():
     from a laptop."""
     env = {**READY, "CORS_ALLOWED_ORIGINS": "http://app.example.com"}
     assert "Browser origins" in _blockers(env, argv=[])
+
+
+# --- a report made to be pasted somewhere ------------------------------------
+
+def test_the_redis_url_is_reported_without_its_password():
+    """Found by running this against production, where it printed the whole URL.
+
+    A managed Redis URL carries its password in the userinfo, and this report is
+    written to be read out loud, pasted into an issue and kept in CI output. The
+    host is what somebody is checking; the password must not travel with it.
+    """
+    from app import preflight
+
+    env = {"QUEUE_ENABLED": "true",
+           "REDIS_URL": "redis://default:hunter2secret@redis.railway.internal:6379"}
+    detail = " ".join(check.detail for check in preflight._check_queue(env))
+
+    assert "hunter2secret" not in detail
+    assert "default:" not in detail
+    assert "redis.railway.internal" in detail, "the host is the useful part"
+
+
+def test_a_plain_redis_url_still_reads_normally():
+    """A redactor that mangles the ordinary case is one somebody works around."""
+    from app import preflight
+
+    checks = preflight._check_queue({"QUEUE_ENABLED": "true",
+                                     "REDIS_URL": "redis://redis:6379/0"})
+    detail = " ".join(check.detail for check in checks)
+    assert "redis://redis:6379/0" in detail
+
+
+def test_an_unparseable_url_degrades_to_silence_not_to_the_secret():
+    """The failure mode of a redactor has to be saying less, never more."""
+    from app import preflight
+
+    detail = preflight._without_credentials("://:@@@not a url")
+    assert "@" not in detail and detail == "set"
+
+
+def test_no_other_check_prints_a_whole_credential():
+    """The database URL carries a password too; it is reported only as a kind."""
+    from app import preflight
+
+    check = preflight._check_database(
+        {"DATABASE_URL": "postgresql://aco_app:hunter2secret@db:5432/aco"})
+    assert "hunter2secret" not in check.detail
+    assert check.detail == "PostgreSQL"
