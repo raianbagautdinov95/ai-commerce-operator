@@ -246,6 +246,9 @@ def test_a_customer_has_no_route_to_this():
     and dialog that makes an irreversible cross-table delete safe to expose."""
     from app.main import app
 
-    paths = {getattr(route, "path", "") for route in app.routes}
+    # FastAPI may retain included routers lazily, so its internal route list is
+    # not a stable representation of the public API. OpenAPI is the contract a
+    # caller actually receives and expands every included router.
+    paths = set(app.openapi()["paths"])
     assert not [p for p in paths if "eras" in p.lower()]
     assert "/api/privacy/deletion-request" in paths
