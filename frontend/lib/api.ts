@@ -527,6 +527,11 @@ export interface CommerceDashboard {
   demo_data: boolean;
   revenue: number;
   profit: number | null;
+  landed_cogs: number | null;
+  gross_profit: number | null;
+  gross_margin: number | null;
+  cogs_complete: boolean;
+  missing_cost_variants: string[];
   orders: number;
   units: number;
   currency: string | null;

@@ -133,6 +133,36 @@ def test_a_recorded_cost_shows_where_it_came_from(stack):
     assert entry["source"] == "shopify" and entry["verification"] == "confirmed"
 
 
+def test_recorded_cost_unlocks_product_margin_but_not_unknown_net_costs(stack):
+    """The dashboard must use the cost catalogue without upgrading gross
+    product margin into net profit when fees and advertising remain unknown.
+    """
+    client, factory = stack
+    store = _shop(factory, sold=((SMALL, "Default Title", 1, 25.0),))
+    db = factory()
+    channel = db.scalar(select(models.ChannelConnection).where(
+        models.ChannelConnection.store_id == store.id))
+    sale_day = _utc_today() - dt.timedelta(days=2)
+    db.add(models.CommerceDailyMetric(
+        store_id=store.id, channel_id=channel.id, metric_date=sale_day,
+        revenue=Decimal("25.00"), refunds=0, fees=0, landed_cogs=0,
+        advertising_spend=0, orders=1, units=1, sessions=0,
+        currency="USD", source="shopify_graphql", costs_complete=False))
+    product_costs.record(
+        db, store_id=store.id, product_id=PRODUCT, variant_id=SMALL,
+        amount=Decimal("10.00"), currency="USD",
+        effective_from=sale_day, source=product_costs.MANUAL,
+        verification=product_costs.REPORTED)
+    db.commit(); db.close()
+
+    body = client.get("/api/dashboard/commerce?days=30").json()
+    assert body["landed_cogs"] == 10.0
+    assert body["gross_profit"] == 15.0
+    assert body["gross_margin"] == 0.6
+    assert body["cogs_complete"] is True
+    assert body["profit"] is None, "fees and advertising are still unknown"
+
+
 def test_the_screen_names_the_measurement_that_is_waiting(stack):
     """A cost with nothing behind it is housekeeping. A cost with a stuck result
     behind it is the difference between a number and a blank."""

@@ -30,6 +30,31 @@ def _rules(findings) -> list[str]:
     return [f.rule for f in findings]
 
 
+def test_product_margin_prices_every_sold_unit_without_calling_it_net_profit():
+    result = engine.product_margin(25, [{
+        "variant_id": "v1", "variant_title": "Default", "units": 1,
+        "refunded_units": 0, "currency": "USD", "unit_cost": 10,
+        "cost_currency": "USD",
+    }])
+    assert result == {
+        "cogs_complete": True, "landed_cogs": 10.0,
+        "gross_profit": 15.0, "gross_margin": 0.6,
+        "missing_cost_variants": [],
+    }
+
+
+def test_product_margin_withholds_a_partial_or_wrong_currency_total():
+    result = engine.product_margin(50, [
+        {"variant_id": "v1", "units": 1, "currency": "USD",
+         "unit_cost": 10, "cost_currency": "USD"},
+        {"variant_id": "v2", "variant_title": "Large", "units": 1,
+         "currency": "USD", "unit_cost": 12, "cost_currency": "EUR"},
+    ])
+    assert result["cogs_complete"] is False
+    assert result["landed_cogs"] is None and result["gross_profit"] is None
+    assert result["missing_cost_variants"] == ["Large"]
+
+
 # --- what it refuses to say -------------------------------------------------
 
 def test_a_store_younger_than_a_week_gets_no_advice():

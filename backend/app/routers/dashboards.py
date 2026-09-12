@@ -1,6 +1,6 @@
 """ROI and commerce dashboards, and the labelled demo seed."""
 
-from .. import commerce_engine
+from .. import commerce_engine, product_costs
 from ..db import crud, models
 from ..db.session import get_session
 from ..schemas import (
@@ -149,6 +149,26 @@ def commerce_dashboard(days: int = Query(default=30, ge=7, le=90),
         models.CommerceDailyMetric.channel_id.in_(channel_ids),
     ))) if channel_ids else []
     total_revenue = round(sum(float(row.revenue) for row in metrics), 2)
+    variant_metrics = list(db.scalars(select(models.VariantDailyMetric).where(
+        models.VariantDailyMetric.store_id == store.id,
+        models.VariantDailyMetric.metric_date >= cutoff,
+        models.VariantDailyMetric.channel_id.in_(channel_ids),
+    ))) if channel_ids else []
+    costed_sales = []
+    for row in variant_metrics:
+        cost = product_costs.cost_on(
+            db, store_id=store.id, product_id=row.external_product_id,
+            variant_id=row.external_variant_id, on=row.metric_date)
+        costed_sales.append({
+            "variant_id": row.external_variant_id,
+            "variant_title": row.variant_title,
+            "units": row.units,
+            "refunded_units": row.refunded_units,
+            "currency": row.currency,
+            "unit_cost": None if cost is None else cost.amount,
+            "cost_currency": None if cost is None else cost.currency,
+        })
+    product_margin = commerce_engine.product_margin(total_revenue, costed_sales)
     results = []
     for channel in channels:
         rows = [row for row in metrics if row.channel_id == channel.id]
@@ -203,6 +223,11 @@ def commerce_dashboard(days: int = Query(default=30, ge=7, le=90),
         demo_data=bool(channels) and not real_channels,
         revenue=total_revenue,
         profit=profit,
+        landed_cogs=product_margin["landed_cogs"],
+        gross_profit=product_margin["gross_profit"],
+        gross_margin=product_margin["gross_margin"],
+        cogs_complete=product_margin["cogs_complete"],
+        missing_cost_variants=product_margin["missing_cost_variants"],
         orders=sum(row.orders for row in metrics), units=sum(row.units for row in metrics),
         currency=channels[0].currency if channels else None, channels=results,
         daily=daily,

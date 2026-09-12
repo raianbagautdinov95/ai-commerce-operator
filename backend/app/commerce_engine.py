@@ -27,6 +27,7 @@ the guardrails' decision, not this module's.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
+from decimal import Decimal
 from typing import Any
 
 #: Below this many observed days a store has a first week, not a trend. Every
@@ -42,6 +43,44 @@ REFUND_SHARE_THRESHOLD = 0.10
 
 #: Consecutive most-recent days without a single order that count as a stall.
 STALL_DAYS = 7
+
+
+def product_margin(revenue: float, sales: list[dict]) -> dict[str, Any]:
+    """Price sold variants without pretending that COGS is net profit.
+
+    ``sales`` contains one row per variant/day and a cost selected for that
+    exact day.  One missing or wrong-currency cost withholds the whole figure:
+    a partial COGS total would look complete on a dashboard even when it is not.
+    """
+    landed_cogs = Decimal("0")
+    missing: set[str] = set()
+    selling = False
+    for row in sales:
+        units = max(0, _count(row, "units") - _count(row, "refunded_units"))
+        if units == 0:
+            continue
+        selling = True
+        cost = row.get("unit_cost")
+        sale_currency = str(row.get("currency") or "").upper()
+        cost_currency = str(row.get("cost_currency") or "").upper()
+        if cost is None or not sale_currency or cost_currency != sale_currency:
+            missing.add(str(row.get("variant_title") or row.get("variant_id") or "Unknown variant"))
+            continue
+        landed_cogs += Decimal(str(cost)) * units
+
+    complete = selling and not missing
+    if not complete:
+        return {"cogs_complete": False, "landed_cogs": None,
+                "gross_profit": None, "gross_margin": None,
+                "missing_cost_variants": sorted(missing)}
+
+    cogs = landed_cogs.quantize(Decimal("0.01"))
+    gross = (Decimal(str(revenue)) - cogs).quantize(Decimal("0.01"))
+    margin = (gross / Decimal(str(revenue))) if revenue else None
+    return {"cogs_complete": True, "landed_cogs": float(cogs),
+            "gross_profit": float(gross),
+            "gross_margin": round(float(margin), 4) if margin is not None else None,
+            "missing_cost_variants": []}
 
 
 @dataclass

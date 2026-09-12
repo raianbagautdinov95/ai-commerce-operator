@@ -110,11 +110,12 @@ export default function Dashboard() {
     finally { setDemoBusy(false); }
   }
 
-  const hasProfit = roi?.profit != null;
   const live = commerce?.channels.length ?? 0;
   const unit = roi?.currency ?? commerce?.currency ?? "USD";
   const revenue = live ? commerce!.revenue : roi?.revenue ?? 0;
   const netProfit = live ? commerce!.profit : roi?.profit ?? null;
+  const hasProfit = netProfit != null;
+  const grossProfit = live ? commerce!.gross_profit : null;
   const orders = live ? commerce!.orders : roi?.order_items ?? 0;
   // Every number on this screen must come from the same place. The chart used
   // to read the Amazon series unconditionally, so a connected Shopify store
@@ -198,6 +199,9 @@ export default function Dashboard() {
             <Series colour="#4ADE80" label="Revenue" value={money(revenue, unit)} />
             <Series colour={netProfit == null ? "var(--ink-6)" : "#8B8CF0"} label="Net profit"
                     value={netProfit == null ? "Withheld" : money(netProfit, unit)} />
+            {live > 0 && <Series colour={grossProfit == null ? "var(--ink-6)" : "var(--proven)"}
+                    label="Gross profit after product cost"
+                    value={grossProfit == null ? "Withheld" : money(grossProfit, unit)} />}
           </div>
         </div>
 
@@ -215,11 +219,15 @@ export default function Dashboard() {
           <Kpi icon="profit" label="Net profit" tone={netProfit == null ? "waiting" : "proven"}
                value={netProfit == null ? "Withheld" : money(netProfit, unit)}
                note={netProfit == null ? "Costs incomplete" : undefined} />
+          {live > 0 && <Kpi icon="margin" label="Product gross profit"
+               tone={grossProfit == null ? "waiting" : "proven"}
+               value={grossProfit == null ? "Withheld" : money(grossProfit, unit)}
+               note={grossProfit == null ? "Needs product costs" : "After landed COGS only"} />}
           <Kpi icon="orders" label="Orders" value={orders.toLocaleString()}
                note={live ? `${commerce!.units.toLocaleString()} units` : undefined} />
           <Kpi icon="margin" label="Profit margin"
-               value={roi?.margin == null ? "—" : `${(roi.margin * 100).toFixed(1)}%`}
-               note={roi?.margin == null ? "Needs full costs" : undefined} />
+               value={chartMargin == null ? "—" : `${(chartMargin * 100).toFixed(1)}%`}
+               note={chartMargin == null ? "Needs full costs" : undefined} />
           <a href="/payroll" className="block">
             <Kpi icon="impact" label={`Proven impact · ${payroll?.period_days ?? 30}d`}
                  tone={payroll?.settled_impact ? "proven" : undefined}
@@ -257,21 +265,28 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="mt-7 space-y-6">
-            <CostRow label="Landed COGS" value={roi?.landed_cogs} revenue={roi?.revenue} currency={unit} />
-            <CostRow label="Amazon fees" value={roi?.amazon_fees} revenue={roi?.revenue} currency={unit} />
-            <CostRow label="Advertising" value={roi?.advertising_spend} revenue={roi?.revenue} currency={unit} />
+            <CostRow label="Landed COGS" value={live ? commerce!.landed_cogs : roi?.landed_cogs}
+                     revenue={revenue} currency={unit} />
+            <CostRow label={live ? "Channel fees" : "Amazon fees"}
+                     value={live ? null : roi?.amazon_fees} revenue={revenue} currency={unit} />
+            <CostRow label="Advertising" value={live ? null : roi?.advertising_spend}
+                     revenue={revenue} currency={unit} />
           </div>
           <div className={`mt-8 p-4 ${hasProfit ? "card-proven" : "card-waiting"}`}
                style={{ borderWidth: "1px", borderStyle: "solid", borderRadius: "var(--r)" }}>
             <div className="flex items-baseline justify-between gap-4">
               <span style={{ fontSize: "13.5px", color: "var(--ink-2)" }}>Retained profit</span>
               <span className="num" style={{ fontSize: "18px", fontWeight: 500, color: hasProfit ? "var(--proven)" : "var(--waiting)" }}>
-                {hasProfit ? money(roi?.profit, unit) : "Withheld"}
+                {hasProfit ? money(netProfit, unit) : "Withheld"}
               </span>
             </div>
-            {roi?.cogs_coverage_percentage != null &&
+            {!live && roi?.cogs_coverage_percentage != null &&
               <p className="num" style={{ margin: "10px 0 0", fontSize: "11.5px", color: "var(--ink-4)" }}>
                 SKU COST COVERAGE · {roi.cogs_coverage_percentage}%
+              </p>}
+            {live > 0 && commerce?.cogs_complete &&
+              <p className="num" style={{ margin: "10px 0 0", fontSize: "11.5px", color: "var(--ink-4)" }}>
+                PRODUCT COST COVERAGE · 100%
               </p>}
           </div>
         </div>
@@ -293,8 +308,9 @@ export default function Dashboard() {
 
       {!hasProfit && <Notice tone="waiting" flush>
         <strong style={{ color: "var(--ink)" }}>Profit is protected from guessing.</strong>{" "}
-        Add landed COGS, Amazon fees and ad spend for the same period to unlock verified margin
-        and ROI. Until then this number stays empty rather than optimistic.
+        {live
+          ? "Product costs are included in gross profit when every sold variant is priced. Net profit stays withheld until channel fees and advertising are also known."
+          : "Add landed COGS, Amazon fees and ad spend for the same period to unlock verified margin and ROI. Until then this number stays empty rather than optimistic."}
       </Notice>}
 
       <section className="card p-6 sm:p-8">

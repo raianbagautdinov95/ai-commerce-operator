@@ -519,6 +519,13 @@ class CommerceDashboardResponse(BaseModel):
     demo_data: bool = False
     revenue: float
     profit: float | None = None
+    # Product margin is useful before fees and advertising are known, but it is
+    # deliberately separate from net profit so the UI cannot confuse the two.
+    landed_cogs: float | None = None
+    gross_profit: float | None = None
+    gross_margin: float | None = None
+    cogs_complete: bool = False
+    missing_cost_variants: list[str] = Field(default_factory=list)
     orders: int
     units: int
     currency: str | None = None
