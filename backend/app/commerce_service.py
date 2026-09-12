@@ -131,14 +131,17 @@ def scan_store(db: Session, store, *, days: int = 30) -> dict:
         open_keys.add(key)
         opened += 1
 
-    if opened:
-        crud.append_audit_event(
-            db, store_id=store.id, actor_id=_actor_id(store.user_id),
-            action="commerce.scan", resource_type="operator_action",
-            after={"opened": opened, "already_open": already_open,
-                   "observed_days": len(series)},
-            commit=False,
-        )
+    # The scan itself is evidence even when it correctly opens nothing.  The
+    # onboarding checklist must distinguish "ran and found nothing" from
+    # "never ran"; only recording scans that opened an action made a healthy
+    # young store look permanently stuck on its first analysis.
+    crud.append_audit_event(
+        db, store_id=store.id, actor_id=_actor_id(store.user_id),
+        action="commerce.scan", resource_type="operator_action",
+        after={"opened": opened, "already_open": already_open,
+               "findings": len(findings), "observed_days": len(series)},
+        commit=False,
+    )
     db.commit()
     log.info("Commerce scan for %s: %d finding(s), %d opened, %d already open",
              target, len(findings), opened, already_open)

@@ -123,6 +123,15 @@ def test_a_store_younger_than_a_week_is_not_advised():
     factory = _store_with(4)
     assert _scan(factory)["findings"] == 0
     assert _actions(factory) == []
+    db = factory()
+    try:
+        event = db.scalar(select(models.AuditEvent).where(
+            models.AuditEvent.action == "commerce.scan"))
+        assert event is not None
+        assert event.after["opened"] == 0
+        assert event.after["observed_days"] == 4
+    finally:
+        db.close()
 
 
 def test_a_demo_channel_never_produces_a_proposal():

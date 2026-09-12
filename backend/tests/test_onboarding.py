@@ -24,7 +24,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app import credentials, onboarding, shopify
+from app import commerce_service, credentials, onboarding, shopify
 from app.db import crud, models
 from app.db.models import Base
 
@@ -202,10 +202,8 @@ def test_an_analysis_that_found_nothing_is_complete_and_says_why(db):
     store = _store(db)
     channel = _connect(db, store)
     _synced(db, store, channel)
-    db.add(models.AuditEvent(
-        store_id=store.id, actor_id=uuid.uuid4(), action="commerce.scan",
-        resource_type="operator_action", after={"opened": 0}))
-    db.commit()
+    result = commerce_service.scan_store(db, store)
+    assert result["opened"] == 0
 
     step = _step(db, store, "analysis")
     assert step.status == onboarding.COMPLETE
