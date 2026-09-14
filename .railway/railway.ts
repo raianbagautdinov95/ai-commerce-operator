@@ -132,6 +132,36 @@ export default defineRailway(() => {
     },
   });
 
+  // A one-shot, private job. It creates a PostgreSQL archive, verifies it
+  // locally, uploads it to R2, and reads it back in full before reporting
+  // success. Its R2 credentials are deliberately separate from the API.
+  const backup = service("backup", {
+    source: github(repository, { branch: "main", rootDirectory: "ops/backup" }),
+    build: {
+      builder: "DOCKERFILE",
+      dockerfilePath: "Dockerfile",
+      watchPatterns: ["ops/backup/**"],
+    },
+    deploy: {
+      cronSchedule: "0 3 * * *",
+      restartPolicyType: "NEVER",
+    },
+    env: {
+      PGHOST: database.env.PGHOST,
+      PGPORT: database.env.PGPORT,
+      PGUSER: database.env.PGUSER,
+      PGPASSWORD: database.env.PGPASSWORD,
+      PGDATABASE: database.env.PGDATABASE,
+      BACKUP_S3_ENDPOINT:
+        "https://052d488b8d1da0d308b570d77b08552b.r2.cloudflarestorage.com",
+      BACKUP_S3_BUCKET: "aco-production-backups",
+      BACKUP_S3_PREFIX: "aco/production",
+      AWS_DEFAULT_REGION: "auto",
+      AWS_ACCESS_KEY_ID: preserve(),
+      AWS_SECRET_ACCESS_KEY: preserve(),
+    },
+  });
+
   const frontend = service("frontend", {
     source: github(repository, { branch: "main", rootDirectory: "frontend" }),
     build: {
@@ -165,7 +195,7 @@ export default defineRailway(() => {
     },
   });
 
-  const backend = group("Backend", [database, cache, api, worker, scheduler]);
+  const backend = group("Backend", [database, cache, api, worker, scheduler, backup]);
 
   return project("ai-commerce-operator", {
     resources: [backend, frontend],

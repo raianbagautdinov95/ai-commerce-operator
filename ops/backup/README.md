@@ -1,5 +1,69 @@
 # PostgreSQL backup runbook
 
+## Daily offsite service (prepared, not yet deployed)
+
+Build `ops/backup/Dockerfile` with build context/root directory `ops/backup`.
+The container runs once and exits. Create a separate Railway service named
+`backup`, set cron to `0 3 * * *` (03:00 UTC daily), restart policy Never, and
+no HTTP healthcheck or public domain. Configure its PG* variables from the
+production PostgreSQL service and the BACKUP_S3_* / AWS_* variables from
+`.env.example`. Keep these credentials out of the API and frontend.
+
+`offsite.py` validates the archive with pg_restore, uploads under a unique key,
+downloads it fully to compare size and SHA-256, then publishes checksum and
+`.verified.json` records. A failed upload or mismatch exits nonzero without a
+success record. The job does not claim that read-back verification proves a
+restore; keep the weekly isolated restore drill.
+
+Provision a private bucket outside Railway before deploying. For Cloudflare R2,
+use Standard storage, disable public access, configure a 14-day bucket lock and
+a 30-day expiration rule for `aco/production/`, and use an object-access token
+scoped to this bucket (without bucket-administration rights). R2 encrypts stored
+objects; use its HTTPS S3 endpoint. Administrative access can change lock rules,
+so protect the separate Cloudflare account as well. The job never deletes or
+changes retention rules itself.
+
+Before enabling the schedule, run once and restore the downloaded object in
+an isolated PostgreSQL 18 instance. Configure failure alerts and an independent
+freshness check for the absence of a verified object newer than 26 hours;
+neither monitoring nor the external bucket is provisioned by this code.
+
+Tests: `python -m unittest discover -s ops/backup -p test_offsite.py -v`.
+
+References:
+- https://docs.railway.com/cron-jobs
+- https://developers.cloudflare.com/r2/buckets/bucket-locks/
+- https://developers.cloudflare.com/r2/reference/data-security/
+
+## Windows / Railway SSH export
+
+`python ops/backup/railway-backup.py` streams a custom-format dump from the
+production `postgres` service to a new file in the git-ignored `backups/`
+directory. It uses the dedicated `%USERPROFILE%/.ssh/aco_railway_backup` key
+registered with Railway; enter its passphrase at the SSH prompt. The script
+checks the command exit status and dump signature, and writes a SHA-256 file.
+It does not delete older copies. These checks do not replace `pg_restore --list`
+or the isolated restore drill below. Failed partial files are retained and must
+not be treated as backups.
+
+On 2026-09-13, an SSH export of production PostgreSQL 18 completed:
+
+- File: `aco-20260913T125151Z.dump`, 125274 bytes.
+- SHA-256: `5b524ea214ff4a684fdc3d2a3164411b7b6821309c180d2d78d946fd014b2534`.
+- Stored locally outside Railway; not committed to Git.
+- Restore validated on 2026-09-13 with PostgreSQL 18 in a local container with
+  network mode `none`, read-only backup mount and temporary in-memory database
+  storage. SHA-256 and table-of-contents checks passed. `restore-drill.sh` passed
+  with `EXPECT_MIN_ROWS=1`: schema `0024_product_costs`, all eight required tables,
+  18 rows across those core tables. The temporary restored database was removed.
+- No claim is made that this local copy has immutable retention or verified
+  storage encryption. Those requirements still apply before disaster recovery
+  can be considered complete.
+
+Use a PostgreSQL 18 (or compatible newer) client for this dump. Restore only to
+an isolated non-production database. Never pass production connection variables
+to `restore-drill.sh`.
+
 Run `backup-postgres.sh` from a trusted PostgreSQL client container or host with
 `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, and `PGDATABASE` supplied by the
 secret manager. The script creates a compressed custom-format dump, validates

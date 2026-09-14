@@ -624,6 +624,18 @@ The shape every module follows, in order:
 6. A screen under `frontend/app/` and a function in `frontend/lib/api.ts`.
 7. Update this document.
 
+## Offsite database backups
+
+`ops/backup/offsite.py` is an independent one-shot PostgreSQL 18 backup job,
+packaged with its own Dockerfile. It uses PG* environment variables and a
+private external HTTPS S3-compatible bucket. It validates dump structure,
+uploads a unique object, verifies the entire download by checksum and size,
+and only then writes a success manifest. It does not import the application,
+modify production rows, or share storage credentials with application services.
+Daily scheduling, retention policies and failure/freshness alerts require
+deployment setup; see `ops/backup/README.md`. A read-back check is distinct from
+the isolated restore drill, and neither proves product impact.
+
 ## The data moat
 
 Every evaluation, recommendation and priced action is persisted. Over time this
