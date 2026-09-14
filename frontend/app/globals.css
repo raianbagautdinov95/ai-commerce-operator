@@ -192,3 +192,72 @@ body {
 }
 .field:focus { border-color: rgba(74, 222, 128, .5); }
 .field::placeholder { color: var(--ink-6); }
+
+/* --- 3D operator treatment -------------------------------------------------
+   Depth is structural: it groups decisions and measured numbers without
+   altering the actual calculation or state language. */
+.three-d-surface {
+  background:
+    radial-gradient(circle 650px at 82% -8%, rgba(69, 173, 164, .20), transparent 57%),
+    radial-gradient(circle 600px at 8% 100%, rgba(218, 139, 78, .13), transparent 58%),
+    linear-gradient(145deg, #091017 0%, #080b10 45%, #0a1015 100%);
+}
+
+.operator-nav {
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(14, 25, 34, .94), rgba(8, 13, 18, .88));
+  box-shadow: 0 12px 24px -20px rgba(0, 0, 0, .95), inset 0 -1px rgba(126, 205, 197, .10);
+}
+
+.card {
+  background: linear-gradient(145deg, rgba(36, 62, 77, .52), rgba(11, 19, 26, .76));
+  border-color: rgba(104, 145, 163, .30);
+  box-shadow: 12px 18px 30px -23px rgba(0, 0, 0, .95), inset 1px 1px rgba(224, 250, 255, .045);
+  transform: perspective(1300px) rotateX(.28deg);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.card:hover {
+  border-color: rgba(127, 231, 199, .38);
+  box-shadow: 16px 25px 38px -25px rgba(0, 0, 0, 1), inset 1px 1px rgba(224, 250, 255, .06);
+  transform: perspective(1300px) translateY(-2px) rotateX(.28deg);
+}
+
+.card-raised {
+  background: linear-gradient(145deg, #172530, #0d151d 78%);
+  box-shadow: inset 1px 1px rgba(228, 250, 255, .05), 9px 15px 25px -22px #000;
+}
+
+.card-proven, .card-waiting, .card-unproven {
+  box-shadow: 12px 18px 28px -25px rgba(0, 0, 0, .95), inset 1px 1px rgba(255, 255, 255, .045);
+}
+
+.btn-primary {
+  border: 1px solid rgba(211, 255, 229, .55);
+  background: linear-gradient(145deg, #83f3ad, #42c978);
+  box-shadow: 0 13px 24px -13px rgba(52, 222, 124, .55), inset 1px 1px rgba(255, 255, 255, .34);
+  transform: translateY(-1px);
+}
+.btn-primary:hover { background: linear-gradient(145deg, #a0f8bc, #58d989); }
+.btn-primary:active { transform: translateY(1px); box-shadow: 0 6px 12px -9px rgba(52, 222, 124, .6); }
+
+.btn-quiet {
+  background: linear-gradient(145deg, rgba(37, 60, 72, .60), rgba(12, 20, 27, .7));
+  border-color: rgba(113, 151, 164, .33);
+  box-shadow: inset 1px 1px rgba(235, 255, 255, .04), 7px 10px 17px -17px #000;
+}
+
+.field {
+  background: linear-gradient(145deg, #071016, #0c151c);
+  border-color: rgba(94, 137, 152, .42);
+  box-shadow: inset 2px 3px 7px rgba(0, 0, 0, .34), 1px 1px rgba(214, 250, 255, .035);
+}
+
+@media (max-width: 640px) {
+  .shell { padding: 10px; }
+  .shell-bed { inset: 1px; filter: blur(32px); }
+  .shell-panel { min-height: calc(100vh - 20px); border-radius: 14px; }
+  .operator-nav { gap: 18px; }
+  .card:hover { transform: none; }
+}

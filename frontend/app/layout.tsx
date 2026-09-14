@@ -29,7 +29,7 @@ export default function RootLayout({
         <div className="shell">
           <div className="shell-bed" />
           <div className="shell-core" />
-          <div className="shell-panel">
+          <div className="shell-panel three-d-surface">
             <div className="shell-grid" />
             <div className="relative">
               <SessionGate>

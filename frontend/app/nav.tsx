@@ -78,7 +78,7 @@ export default function Nav() {
 
   return (
     <nav
-      className="flex items-center gap-6 overflow-x-auto px-6 lg:px-11"
+      className="operator-nav flex items-center gap-6 overflow-x-auto px-6 lg:px-11"
       style={{ height: "62px", borderBottom: "1px solid var(--line)" }}
     >
       <a href="/dashboard" className="mr-2 flex shrink-0 items-center gap-3">
