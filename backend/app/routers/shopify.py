@@ -10,6 +10,7 @@ from ..queueing import queue_enabled
 from ..schemas import (
     ShopifyAuthorizationResponse, ShopifyConnectionResponse, BackgroundJobResponse)
 from fastapi import APIRouter, Depends, HTTPException, Header, Query, Request
+from fastapi.responses import RedirectResponse
 from sqlalchemy import delete, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -22,6 +23,12 @@ from ..runtime import log
 from ..deps import _actor_id, _idempotency_key
 
 router = APIRouter()
+
+
+def _shopify_success_redirect() -> str | None:
+    """The browser OAuth flow ends back in the app, never on API JSON."""
+    base = (os.getenv("PUBLIC_APP_URL") or "").strip().rstrip("/")
+    return f"{base}/integrations/shopify?connected=1" if base.startswith("https://") else None
 
 
 @router.post("/api/integrations/shopify/authorize",
@@ -314,7 +321,7 @@ def _shopify_connection_response(channel: models.ChannelConnection) -> ShopifyCo
 
 @router.get("/api/integrations/shopify/callback",
          response_model=ShopifyConnectionResponse)
-def shopify_callback(request: Request, db: Session = Depends(get_session)) -> ShopifyConnectionResponse:
+def shopify_callback(request: Request, db: Session = Depends(get_session)) -> ShopifyConnectionResponse | RedirectResponse:
     try:
         query = shopify.verify_callback_query(request.scope.get("query_string", b""))
         shop = shopify.normalize_shop(query.get("shop", ""))
@@ -360,9 +367,13 @@ def shopify_callback(request: Request, db: Session = Depends(get_session)) -> Sh
             resource_id=str(channel.id), after={"shop": shop}, commit=False,
         )
         db.commit()
-        return ShopifyConnectionResponse(
+        result = ShopifyConnectionResponse(
             connected=True, shop=shop, channel_id=str(channel.id)
         )
+        redirect = _shopify_success_redirect()
+        if redirect and "text/html" in request.headers.get("accept", ""):
+            return RedirectResponse(redirect, status_code=303)
+        return result
     except shopify.ShopifyAuthorizationError as exc:
         raise HTTPException(status_code=400, detail="Shopify authorization failed") from exc
     except Exception as exc:

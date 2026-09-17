@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  beginShopifyAuthorization, getOnboarding, retryShopifyNotifications, scanCommerce,
+  getOnboarding, retryShopifyNotifications, scanCommerce,
   startShopifySync,
   type Onboarding, type OnboardingAction, type OnboardingStatus, type OnboardingStep,
 } from "../../lib/api";
@@ -114,13 +114,9 @@ export default function OnboardingPage() {
     try {
       switch (step.action) {
         case "connect_shopify": {
-          // The backend hands back the URL to send them to; this does not
-          // assemble one, because a client that builds an OAuth URL is a client
-          // that can build a wrong one.
-          const shop = window.prompt(
-            "Your Shopify address, ending .myshopify.com");
-          if (!shop) break;
-          window.location.href = await beginShopifyAuthorization(shop.trim());
+          // The integration screen explains the two safe OAuth steps. Keeping
+          // this checklist to one click avoids a surprising technical prompt.
+          window.location.href = "/integrations/shopify";
           return;
         }
         case "retry_notifications":

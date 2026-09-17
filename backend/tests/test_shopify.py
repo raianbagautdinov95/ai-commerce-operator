@@ -333,6 +333,51 @@ def test_oauth_connection_survives_optional_webhook_registration_failure(monkeyp
     assert channel.settings["webhook_setup"] == "pending_configuration"
 
 
+def test_browser_oauth_callback_returns_to_the_connection_screen(monkeypatch):
+    _configure(monkeypatch)
+    monkeypatch.setenv("PUBLIC_APP_URL", "https://app.example.test")
+    monkeypatch.setenv("CREDENTIAL_ENCRYPTION_KEYS", json.dumps({
+        "v1": base64.b64encode(b"1" * 32).decode(),
+    }))
+    monkeypatch.setenv("CREDENTIAL_ACTIVE_KEY_VERSION", "v1")
+    engine = create_engine("sqlite://", poolclass=StaticPool,
+                           connect_args={"check_same_thread": False})
+    Base.metadata.create_all(engine)
+    factory = sessionmaker(bind=engine, expire_on_commit=False)
+    db = factory(); store = crud.get_or_create_dev_store(db)
+    authorization_url = shopify.create_authorization(
+        db, store_id=store.id, actor_id=store.user_id, shop="return.myshopify.com"
+    )
+    state = parse_qs(urlparse(authorization_url).query)["state"][0]
+
+    class Client:
+        def __init__(self, *_args, **_kwargs): pass
+        def ensure_webhook_subscriptions(self, _callback_uri): return []
+        def close(self): pass
+
+    monkeypatch.setattr(shopify, "AdminGraphQLClient", Client)
+    monkeypatch.setattr(shopify, "exchange_code", lambda *_args, **_kwargs: {
+        "access_token": "test-access-token", "scope": "read_orders",
+    })
+
+    def override():
+        session = factory()
+        try: yield session
+        finally: session.close()
+
+    app.dependency_overrides[get_session] = override
+    params = {"code": "code-1", "shop": "return.myshopify.com", "state": state, "timestamp": "1"}
+    message = urlencode(sorted(params.items()))
+    params["hmac"] = hmac.new(b"shopify-secret", message.encode(), hashlib.sha256).hexdigest()
+    try:
+        response = TestClient(app).get("/api/integrations/shopify/callback", params=params,
+                                       headers={"Accept": "text/html"}, follow_redirects=False)
+        assert response.status_code == 303
+        assert response.headers["location"] == "https://app.example.test/integrations/shopify?connected=1"
+    finally:
+        app.dependency_overrides.pop(get_session, None)
+
+
 def test_oauth_callback_redeclares_tenant_after_credential_commit():
     """RLS settings are transaction-local; both later writes need a declaration."""
     import inspect

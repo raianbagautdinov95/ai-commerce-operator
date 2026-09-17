@@ -20,6 +20,11 @@ export default function ShopifyIntegrationPage() {
 
   useEffect(() => {
     getShopifyConnection().then(setConnection).catch((e) => setError((e as Error).message));
+    const query = new URLSearchParams(window.location.search);
+    if (query.get("connected") === "1") {
+      setNotice("Shopify is connected. Your store is ready for a first read-only sync.");
+      window.history.replaceState({}, "", "/integrations/shopify");
+    }
   }, []);
 
   async function connect() {
@@ -99,7 +104,7 @@ export default function ShopifyIntegrationPage() {
           <div>
             <p className="lbl">Connection</p>
             <h2 style={{ margin: "8px 0 0", fontSize: "19px", fontWeight: 600 }}>
-              {connected ? "Store connected" : "Connect a Shopify store"}
+              {connected ? "Store connected" : "Connect your store in 2 steps"}
             </h2>
             {connection?.shop && (
               <p className="num" style={{ margin: "8px 0 0", fontSize: "12.5px", color: "var(--ink-3)" }}>
@@ -135,18 +140,30 @@ export default function ShopifyIntegrationPage() {
 
         {!connected && (
           <div className="mt-7">
-            <label className="lbl" htmlFor="shop">Your Shopify address</label>
+            <p className="lbl">Step 1 of 2</p>
+            <label className="mt-2 block" htmlFor="shop" style={{ fontSize: "14.5px", fontWeight: 600 }}>
+              Your Shopify store address
+            </label>
             <div className="mt-2 flex flex-col gap-3 sm:flex-row">
               <input id="shop" value={shop} onChange={(e) => setShop(e.target.value)}
                      placeholder="your-store.myshopify.com"
                      className="field num" style={{ flex: 1, minWidth: 0 }} />
               <button onClick={connect} disabled={busy || !shop.trim()}
                       className="btn-primary shrink-0 inline-flex items-center gap-2">
-                <Icon name="plug" size={13} /> {busy ? "OPENING SHOPIFY…" : "CONNECT SECURELY"}
+                <Icon name="plug" size={13} /> {busy ? "OPENING SHOPIFY…" : "CONTINUE TO SHOPIFY"}
               </button>
             </div>
             <p style={{ margin: "10px 0 0", fontSize: "12px", color: "var(--ink-5)" }}>
-              Use the permanent .myshopify.com address, not a custom storefront domain.
+              Use the permanent .myshopify.com address from Shopify Admin — not your public storefront address.
+            </p>
+            <div className="mt-4 p-4" style={{ background: "var(--raised)", borderRadius: "var(--r-sm)" }}>
+              <p className="lbl">Step 2 of 2</p>
+              <p style={{ margin: "7px 0 0", fontSize: "12.5px", lineHeight: 1.65, color: "var(--ink-3)" }}>
+                Shopify will ask you to approve read-only access. After approval, you return here automatically — no codes or technical pages.
+              </p>
+            </div>
+            <p style={{ margin: "14px 0 0", fontSize: "12px", color: "var(--ink-5)" }}>
+              The Operator cannot change products, prices, or orders.
             </p>
           </div>
         )}
