@@ -107,6 +107,19 @@ export default function ProductFinder() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    // Shopify opens the app with a signed launch URL that names the shop. We
+    // do not grant access from that value; OAuth still does that. It merely
+    // spares the owner from finding and typing their permanent shop address.
+    const query = new URLSearchParams(window.location.search);
+    const shop = query.get("shop")?.trim().toLowerCase();
+    if (!query.get("hmac") || !shop || !/^[a-z0-9][a-z0-9-]{0,58}\.myshopify\.com$/.test(shop)) return;
+    const key = `shopify-launch-seen:${shop}`;
+    if (window.sessionStorage.getItem(key)) return;
+    window.sessionStorage.setItem(key, "1");
+    window.location.replace(`/integrations/shopify?from=shopify&shop=${encodeURIComponent(shop)}`);
+  }, []);
+
   const setField = (i: number, k: keyof ProductRequest, v: string | boolean) => {
     setUntouched(false);
     setForms((fs) =>

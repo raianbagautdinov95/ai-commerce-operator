@@ -19,12 +19,25 @@ export default function ShopifyIntegrationPage() {
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
-    getShopifyConnection().then(setConnection).catch((e) => setError((e as Error).message));
     const query = new URLSearchParams(window.location.search);
     if (query.get("connected") === "1") {
       setNotice("Shopify is connected. Your store is ready for a first read-only sync.");
       window.history.replaceState({}, "", "/integrations/shopify");
     }
+    const launchedShop = query.get("from") === "shopify" ? query.get("shop")?.trim().toLowerCase() : null;
+    getShopifyConnection().then(async (current) => {
+      setConnection(current);
+      // A launch from Shopify is an explicit request to connect that shop. The
+      // address is only used to begin normal OAuth; the backend still validates
+      // it and Shopify is still the screen that grants every permission.
+      if (!current.connected && launchedShop &&
+          /^[a-z0-9][a-z0-9-]{0,58}\.myshopify\.com$/.test(launchedShop)) {
+        setShop(launchedShop); setBusy(true);
+        setNotice(`We found ${launchedShop}. Opening Shopify's secure approval…`);
+        try { window.location.assign(await beginShopifyAuthorization(launchedShop)); }
+        catch (e) { setError((e as Error).message); setBusy(false); }
+      }
+    }).catch((e) => setError((e as Error).message));
   }, []);
 
   async function connect() {
@@ -164,6 +177,9 @@ export default function ShopifyIntegrationPage() {
             </div>
             <p style={{ margin: "14px 0 0", fontSize: "12px", color: "var(--ink-5)" }}>
               The Operator cannot change products, prices, or orders.
+            </p>
+            <p style={{ margin: "8px 0 0", fontSize: "12px", color: "var(--ink-5)" }}>
+              Open the Operator from Shopify Admin and we fill in this address automatically.
             </p>
           </div>
         )}
