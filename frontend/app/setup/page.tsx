@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import {
-  createBillingCheckout, createBillingPortal, getAccountStatus, type AccountStatus,
+  createBillingCheckout, createBillingPortal, getAccountStatus, getEntitlement,
+  type AccountStatus, type Entitlement,
 } from "../../lib/api";
 import { Icon, IconPlate, type IconName } from "../icons";
 
@@ -17,20 +18,25 @@ const steps: readonly (readonly [keyof AccountStatus["onboarding"], string, stri
   ["first_ai_action", "Make the first decision", "Score a product, or answer a proposal.", "/proposals", "spark"],
 ] as const;
 
-const plans = [
-  ["starter", "Starter", "$29", "1 channel", "100 AI actions"],
-  ["operator", "Operator", "$79", "3 channels", "1,000 AI actions + Autopilot"],
-  ["scale", "Scale", "$199", "10 channels", "10,000 AI actions + Autopilot"],
-] as const;
+function money(amount: number, currency: string): string {
+  try {
+    return amount.toLocaleString(undefined, {
+      style: "currency", currency, maximumFractionDigits: 2,
+    });
+  } catch {
+    return `${amount} ${currency}`;
+  }
+}
 
 export default function SetupPage() {
   const [status, setStatus] = useState<AccountStatus | null>(null);
+  const [entitlement, setEntitlement] = useState<Entitlement | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [billingBusy, setBillingBusy] = useState(false);
 
-  async function choosePlan(plan: "starter" | "operator" | "scale") {
+  async function choosePlan() {
     setBillingBusy(true); setError(null);
-    try { window.location.assign(await createBillingCheckout(plan)); }
+    try { window.location.assign(await createBillingCheckout("operator")); }
     catch (e) { setError((e as Error).message); setBillingBusy(false); }
   }
 
@@ -42,6 +48,7 @@ export default function SetupPage() {
 
   useEffect(() => {
     getAccountStatus().then(setStatus).catch((e) => setError((e as Error).message));
+    getEntitlement().then(setEntitlement).catch((e) => setError((e as Error).message));
   }, []);
 
   const done = status?.completion_percentage ?? 0;
@@ -136,7 +143,8 @@ export default function SetupPage() {
             Grow without changing your operating system
           </h2>
           <p style={{ margin: "10px 0 0", fontSize: "13.5px", color: "var(--ink-3)" }}>
-            Checkout is hosted by Stripe, once billing keys are configured on the server.
+            One plan for this pilot. The price below is read from the billing service,
+            so it cannot drift from checkout.
           </p>
           {status?.subscription_status === "active" && (
             <button disabled={billingBusy} onClick={manageBilling} className="btn-quiet mt-5">
@@ -145,40 +153,37 @@ export default function SetupPage() {
           )}
         </div>
 
-        <div className="mt-7 grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
-          {plans.map(([id, name, price, channels, actions]) => {
-            const current = id === status?.plan;
-            return (
-              <div key={id} className="card p-6"
-                   style={current ? { borderColor: "rgba(74,222,128,.3)" } : undefined}>
-                <div className="flex items-center justify-between gap-3">
-                  <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 600 }}>{name}</h3>
-                  {current && (
-                    <span className="num" style={{ fontSize: "10px", letterSpacing: ".12em", color: "var(--proven)" }}>
-                      CURRENT TRIAL
-                    </span>
-                  )}
-                </div>
-                <p className="num" style={{ margin: "20px 0 0", fontSize: "30px", fontWeight: 500, letterSpacing: "-.03em" }}>
-                  {price}<span style={{ fontSize: "13px", color: "var(--ink-5)" }}> / month</span>
+        {entitlement && (
+          <div className="card mx-auto mt-7 max-w-md p-6"
+               style={{ borderColor: "rgba(74,222,128,.3)" }}>
+            <div className="flex items-center justify-between gap-3">
+              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 600 }}>
+                {entitlement.plan_name}
+              </h3>
+              <span className="num" style={{ fontSize: "10px", letterSpacing: ".12em", color: "var(--proven)" }}>
+                {entitlement.status === "trialing" ? "CURRENT TRIAL" : "CURRENT PLAN"}
+              </span>
+            </div>
+            <p className="num" style={{ margin: "20px 0 0", fontSize: "30px", fontWeight: 500, letterSpacing: "-.03em" }}>
+              {money(entitlement.price_per_month, entitlement.currency)}
+              <span style={{ fontSize: "13px", color: "var(--ink-5)" }}> / month</span>
+            </p>
+            <div className="mt-6 space-y-2.5">
+              {entitlement.features.map((line) => (
+                <p key={line} className="flex items-start gap-2.5"
+                   style={{ margin: 0, fontSize: "13px", color: "var(--ink-2)" }}>
+                  <Icon name="check" size={14} stroke="var(--proven)" className="mt-0.5 shrink-0" />
+                  {line}
                 </p>
-                <div className="mt-6 space-y-2.5">
-                  {[channels, actions, "Verified profit dashboard"].map((line) => (
-                    <p key={line} className="flex items-start gap-2.5"
-                       style={{ margin: 0, fontSize: "13px", color: "var(--ink-2)" }}>
-                      <Icon name="check" size={14} stroke="var(--proven)" className="mt-0.5 shrink-0" />
-                      {line}
-                    </p>
-                  ))}
-                </div>
-                <button disabled={billingBusy} onClick={() => choosePlan(id)}
-                        className={`mt-7 w-full ${current ? "btn-quiet" : "btn-primary"}`}>
-                  CHOOSE {name.toUpperCase()}
-                </button>
-              </div>
-            );
-          })}
-        </div>
+              ))}
+            </div>
+            {entitlement.action === "checkout" && entitlement.checkout_available && (
+              <button disabled={billingBusy} onClick={choosePlan} className="btn-primary mt-7 w-full">
+                CHOOSE OPERATOR
+              </button>
+            )}
+          </div>
+        )}
       </section>
     </main>
   );
