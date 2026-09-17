@@ -46,6 +46,31 @@ def store_credential(db: Session, *, store_id: uuid.UUID, provider: str, secret:
     return result
 
 
+def delete_credential(db: Session, *, store_id: uuid.UUID, provider: str,
+                      commit: bool = True) -> bool:
+    """Remove a tenant's credential without touching any imported facts.
+
+    The caller may keep this inside a larger transaction with the channel
+    status and its audit event.  This is used when a merchant deliberately
+    switches stores: the Operator must lose access to the old one, while the
+    read-only aggregate history remains separately scoped to that channel.
+    """
+    _assert_tenant(store_id)
+    declare_tenant(db, store_id)
+    provider = provider.lower().strip()
+    row = db.scalar(select(models.IntegrationCredential).where(
+        models.IntegrationCredential.store_id == store_id,
+        models.IntegrationCredential.provider == provider,
+    ))
+    if row is None:
+        return False
+    db.delete(row)
+    db.flush()
+    if commit:
+        db.commit()
+    return True
+
+
 def load_credential(db: Session, *, store_id: uuid.UUID, provider: str) -> str | None:
     _assert_tenant(store_id)
     declare_tenant(db, store_id)

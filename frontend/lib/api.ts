@@ -681,6 +681,14 @@ export async function getShopifyConnection(): Promise<ShopifyConnection> {
   return await res.json();
 }
 
+export async function disconnectShopify(): Promise<ShopifyConnection> {
+  const res = await apiFetch(`${API_BASE}/api/integrations/shopify/disconnect`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.detail ?? `API error ${res.status}`);
+  return await res.json();
+}
+
 export async function beginShopifyAuthorization(shop: string): Promise<string> {
   const query = new URLSearchParams({ shop });
   const res = await apiFetch(`${API_BASE}/api/integrations/shopify/authorize?${query}`, {

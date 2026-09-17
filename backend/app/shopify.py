@@ -487,3 +487,14 @@ class AdminGraphQLClient:
                 raise ShopifyAPIError("Shopify webhook registration failed.")
             registered.append(topic)
         return registered
+
+    def remove_operator_webhook_subscriptions(self) -> None:
+        """Remove the notification topics the Operator registered for a shop.
+
+        This is deliberately narrow: disconnecting must not disturb another
+        app's webhooks, and it must never modify products, orders, or prices.
+        """
+        topics = {"ORDERS_CREATE", "REFUNDS_CREATE", "APP_UNINSTALLED"}
+        for subscription in self.list_webhook_subscriptions():
+            if subscription.get("topic") in topics and subscription.get("id"):
+                self.delete_webhook_subscription(subscription["id"])

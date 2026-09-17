@@ -11,7 +11,7 @@ from sqlalchemy import create_engine, func, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app import shopify
+from app import credentials, shopify
 from app.db import crud, models
 from app.db.models import Base
 from app.db.session import get_session
@@ -181,6 +181,99 @@ def test_shopify_account_does_not_report_demo_channel_as_connected():
         assert response.status_code == 200
         assert response.json() == {"connected": False, "shop": None, "channel_id": None,
                                    "notifications": "pending", "topics": [], "reason": None}
+    finally:
+        app.dependency_overrides.pop(get_session, None)
+
+
+def test_owner_can_disconnect_a_shop_before_connecting_another(monkeypatch):
+    """Changing stores removes access, but never deletes Shopify-derived history."""
+    _configure(monkeypatch)
+    monkeypatch.setenv("CREDENTIAL_ENCRYPTION_KEYS", json.dumps({
+        "v1": base64.b64encode(b"1" * 32).decode(),
+    }))
+    monkeypatch.setenv("CREDENTIAL_ACTIVE_KEY_VERSION", "v1")
+    engine = create_engine("sqlite://", poolclass=StaticPool,
+                           connect_args={"check_same_thread": False})
+    Base.metadata.create_all(engine)
+    factory = sessionmaker(bind=engine, expire_on_commit=False)
+    db = factory(); store = crud.get_or_create_dev_store(db)
+    channel = models.ChannelConnection(
+        store_id=store.id, provider="shopify", external_account_id="old.myshopify.com",
+        display_name="Old", status="connected", currency="USD", settings={},
+    )
+    db.add(channel); db.commit(); db.refresh(channel)
+    db.add(models.CommerceDailyMetric(
+        store_id=store.id, channel_id=channel.id, metric_date=dt.date(2026, 9, 1),
+        revenue=12, refunds=0, fees=0, landed_cogs=0, advertising_spend=0,
+        orders=1, units=1, sessions=0, currency="USD", source="shopify_sync",
+        costs_complete=False,
+    ))
+    db.commit()
+    credentials.store_credential(db, store_id=store.id,
+                                 provider=shopify.credential_provider("old.myshopify.com"),
+                                 secret="shpat_old")
+    db.close()
+
+    class RemovingClient:
+        def __init__(self, *_args, **_kwargs): pass
+        def remove_operator_webhook_subscriptions(self): pass
+        def close(self): pass
+
+    monkeypatch.setattr(shopify, "AdminGraphQLClient", RemovingClient)
+
+    def override():
+        session = factory()
+        try: yield session
+        finally: session.close()
+
+    app.dependency_overrides[get_session] = override
+    try:
+        response = TestClient(app).post("/api/integrations/shopify/disconnect")
+        assert response.status_code == 200
+        assert response.json()["connected"] is False
+    finally:
+        app.dependency_overrides.pop(get_session, None)
+
+    verify = factory()
+    channel = verify.scalar(select(models.ChannelConnection))
+    assert channel.status == "disconnected"
+    assert channel.settings["webhook_setup"] == "disconnected"
+    assert credentials.load_credential(
+        verify, store_id=store.id, provider=shopify.credential_provider("old.myshopify.com")
+    ) is None
+    assert verify.scalar(select(func.count()).select_from(models.CommerceDailyMetric)) == 1
+    assert "shopify.disconnected" in [event.action for event in verify.scalars(select(models.AuditEvent))]
+    verify.close()
+
+
+def test_disconnected_shopify_channel_rejects_late_webhooks(monkeypatch):
+    _configure(monkeypatch)
+    engine = create_engine("sqlite://", poolclass=StaticPool,
+                           connect_args={"check_same_thread": False})
+    Base.metadata.create_all(engine)
+    factory = sessionmaker(bind=engine, expire_on_commit=False)
+    db = factory(); store = crud.get_or_create_dev_store(db)
+    db.add(models.ChannelConnection(
+        store_id=store.id, provider="shopify", external_account_id="old.myshopify.com",
+        display_name="Old", status="disconnected", currency="USD", settings={},
+    ))
+    db.commit(); db.close()
+
+    def override():
+        session = factory()
+        try: yield session
+        finally: session.close()
+
+    app.dependency_overrides[get_session] = override
+    body = b'{"id": 1}'
+    headers = {
+        "X-Shopify-Hmac-Sha256": _signature(body),
+        "X-Shopify-Shop-Domain": "old.myshopify.com",
+        "X-Shopify-Topic": "orders/create", "X-Shopify-Webhook-Id": "late-1",
+    }
+    try:
+        assert TestClient(app).post("/api/webhooks/shopify", content=body,
+                                    headers=headers).status_code == 404
     finally:
         app.dependency_overrides.pop(get_session, None)
 

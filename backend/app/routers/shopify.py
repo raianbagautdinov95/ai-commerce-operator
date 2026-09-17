@@ -70,6 +70,63 @@ def shopify_account(db: Session = Depends(get_session)) -> ShopifyConnectionResp
     return ShopifyConnectionResponse(connected=False)
 
 
+@router.post("/api/integrations/shopify/disconnect",
+             response_model=ShopifyConnectionResponse)
+def shopify_disconnect(db: Session = Depends(get_session)) -> ShopifyConnectionResponse:
+    """Stop access to the current Shopify shop so the owner can connect another.
+
+    No Shopify data is changed or deleted. Existing aggregate facts stay with
+    their old, disconnected channel and are excluded from current dashboards.
+    """
+    store = crud.get_or_create_dev_store(db)
+    channel = db.scalar(select(models.ChannelConnection).where(
+        models.ChannelConnection.store_id == store.id,
+        models.ChannelConnection.provider == "shopify",
+        models.ChannelConnection.status == "connected",
+        models.ChannelConnection.external_account_id.like("%.myshopify.com"),
+    ).order_by(models.ChannelConnection.synced_at.desc()))
+    if channel is None:
+        raise HTTPException(status_code=409, detail="No Shopify shop is connected")
+
+    shop = channel.external_account_id
+    provider = shopify.credential_provider(shop)
+    access_token = credentials.load_credential(db, store_id=store.id, provider=provider)
+    webhooks_removed = False
+    if access_token:
+        client = shopify.AdminGraphQLClient(shop, access_token)
+        try:
+            client.remove_operator_webhook_subscriptions()
+            webhooks_removed = True
+        except (shopify.ShopifyAPIError, shopify.ShopifyAuthorizationError) as exc:
+            # Local disconnection must still win. The status filter in the
+            # webhook handler below prevents any old delivery changing facts.
+            log.warning("Could not remove Shopify webhooks for %s: %s", shop, exc)
+        finally:
+            client.close()
+
+    now = dt.datetime.now(dt.timezone.utc)
+    channel.status = "disconnected"
+    channel.synced_at = now
+    channel.settings = {
+        **(channel.settings or {}),
+        "webhooks": [],
+        "webhook_setup": "disconnected",
+        "webhook_error": None,
+        "disconnected_at": now.isoformat(),
+        "disconnected_reason": "Disconnected by workspace owner to connect another Shopify store.",
+    }
+    db.add(channel)
+    credentials.delete_credential(db, store_id=store.id, provider=provider, commit=False)
+    crud.append_audit_event(
+        db, store_id=store.id, actor_id=_actor_id(store.user_id),
+        action="shopify.disconnected", resource_type="channel_connection",
+        resource_id=str(channel.id),
+        after={"shop": shop, "webhooks_removed": webhooks_removed}, commit=False,
+    )
+    db.commit()
+    return ShopifyConnectionResponse(connected=False)
+
+
 @router.post("/api/integrations/shopify/notifications/retry",
           response_model=ShopifyConnectionResponse)
 def shopify_retry_notifications(db: Session = Depends(get_session)) -> ShopifyConnectionResponse:
@@ -337,6 +394,7 @@ async def shopify_webhook(request: Request, db: Session = Depends(get_session)) 
     channels = list(db.scalars(select(models.ChannelConnection).where(
         models.ChannelConnection.provider == "shopify",
         models.ChannelConnection.external_account_id == shop,
+        models.ChannelConnection.status == "connected",
     )))
     if len(channels) != 1:
         raise HTTPException(status_code=404, detail="Shopify channel not found")

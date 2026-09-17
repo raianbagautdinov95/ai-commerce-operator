@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  beginShopifyAuthorization, getShopifyConnection, retryShopifyNotifications,
+  beginShopifyAuthorization, disconnectShopify, getShopifyConnection, retryShopifyNotifications,
   startShopifySync, waitForBackgroundJob, type ShopifyConnection,
 } from "../../../lib/api";
 import { Icon, IconPlate } from "../../icons";
@@ -44,6 +44,22 @@ export default function ShopifyIntegrationPage() {
   async function retryNotifications() {
     setBusy(true); setError(null);
     try { setConnection(await retryShopifyNotifications()); }
+    catch (e) { setError((e as Error).message); }
+    finally { setBusy(false); }
+  }
+
+  async function changeStore() {
+    const currentShop = connection?.shop;
+    if (!currentShop || !window.confirm(
+      `Disconnect ${currentShop}? This removes the Operator's read-only access and does not change Shopify products, orders, or prices.`
+    )) return;
+    setBusy(true); setError(null); setNotice(null);
+    try {
+      await disconnectShopify();
+      setConnection(await getShopifyConnection());
+      setShop("");
+      setNotice(`${currentShop} was disconnected. Enter the store you want to connect next.`);
+    }
     catch (e) { setError((e as Error).message); }
     finally { setBusy(false); }
   }
@@ -146,6 +162,21 @@ export default function ShopifyIntegrationPage() {
             </div>
             <button onClick={sync} disabled={busy} className="btn-quiet shrink-0">
               {busy ? "SYNCING…" : "SYNC LAST 30 DAYS"}
+            </button>
+          </div>
+        )}
+
+        {connected && (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-4 p-5"
+               style={{ border: "1px solid var(--line)", borderRadius: "var(--r)" }}>
+            <div>
+              <p style={{ margin: 0, fontSize: "14.5px", fontWeight: 600 }}>Need a different Shopify store?</p>
+              <p style={{ margin: "7px 0 0", fontSize: "12.5px", color: "var(--ink-3)" }}>
+                Disconnect this read-only channel before connecting another one. Products, orders, and prices are never changed.
+              </p>
+            </div>
+            <button onClick={changeStore} disabled={busy} className="btn-quiet shrink-0">
+              {busy ? "DISCONNECTING…" : "CHANGE STORE"}
             </button>
           </div>
         )}
