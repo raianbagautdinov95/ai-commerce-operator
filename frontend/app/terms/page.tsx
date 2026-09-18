@@ -4,12 +4,6 @@ import { useEffect, useState } from "react";
 import { getLegalDetails, type LegalDetails } from "../../lib/api";
 import { IconPlate } from "../icons";
 
-/**
- * What the product actually does is stated here as fact, because it is checkable
- * against the code. What a lawyer has to decide — liability, governing law,
- * refunds — is left visibly open rather than filled with plausible wording.
- * A clause that reads as reviewed and was not is worse than an obvious gap.
- */
 export default function TermsPage() {
   const [legal, setLegal] = useState<LegalDetails | null>(null);
 
@@ -26,13 +20,11 @@ export default function TermsPage() {
       </h1>
 
       <div className="card-waiting mt-7 p-5" style={{ borderWidth: "1px", borderStyle: "solid", borderRadius: "var(--r)", fontSize: "13.5px", lineHeight: 1.7, color: "var(--ink-2)" }}>
-        <p className="font-semibold">Not yet reviewed by a lawyer.</p>
+        <p className="font-semibold">Plain-language terms for the pilot.</p>
         <p className="mt-1">
-          The sections describing what the product does are accurate and checkable.
-          The three marked <em>open</em> below — liability, governing law and
-          refunds — are deliberately blank rather than filled with plausible
-          wording, because a clause that reads as reviewed and is not would be
-          worse than a visible gap.
+          These terms state how the service is sold today and do not reduce any
+          protection that cannot be reduced under applicable law. They should be
+          reviewed by a qualified lawyer before a wider launch.
         </p>
       </div>
 
@@ -96,19 +88,40 @@ export default function TermsPage() {
           by maintenance. No uptime is promised.
         </Section>
 
-        <OpenSection title="Billing, refunds and tax">
-          Paid plans renew on the terms shown at checkout, and cancellation runs
-          through the billing portal.
-        </OpenSection>
+        <Section title="Billing, cancellation, refunds and tax">
+          Prices, billing period and taxes are shown before you pay. Paid plans
+          renew until cancelled through the billing portal; cancellation stops the
+          next renewal and access continues until the end of the paid period.
+          If you are a consumer in the EU or UK, you may cancel a distance contract
+          within 14 days of purchase by emailing the contact above. We will refund
+          payments due under applicable law within the required time. For a
+          business customer, fees for an already-started billing period are not
+          refundable except where required by law or where we made an error.
+        </Section>
 
-        <OpenSection title="Liability">
-          Any limitation of liability has to be written for a specific
-          jurisdiction. Until it is, none is claimed here.
-        </OpenSection>
+        <Section title="Digital service and withdrawal right">
+          We do not remove a consumer&apos;s withdrawal right merely because access
+          was created. A right of withdrawal may end early only where you gave
+          express consent at checkout for immediate performance, acknowledged the
+          consequence, and received that confirmation on a durable medium. Until
+          that checkout flow exists, the normal statutory withdrawal rights apply.
+        </Section>
 
-        <OpenSection title="Governing law and disputes">
-          Depends on the operating entity above, which is not yet named.
-        </OpenSection>
+        <Section title="Liability">
+          Nothing in these terms excludes or limits rights that cannot be excluded
+          by law. The service provides information and proposals, not a guarantee
+          of profit, sales, availability, compliance or a particular business
+          result. To the extent permitted by law, we are not responsible for
+          indirect or consequential loss arising from decisions made using the
+          service.
+        </Section>
+
+        <Section title="Governing law and disputes">
+          These terms are governed by the laws of Finland. If you are a consumer,
+          you keep any mandatory protection provided by the law of your country of
+          residence. Before starting formal proceedings, please contact us so we
+          can try to resolve the issue directly.
+        </Section>
       </div>
     </main>
   );
@@ -119,23 +132,6 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     <section>
       <h2 className="text-xl font-semibold text-[#E8EDEF]">{title}</h2>
       <p className="mt-2 leading-7">{children}</p>
-    </section>
-  );
-}
-
-function OpenSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-[12px] border border-dashed border-[#26343D] p-5">
-      <h2 className="flex flex-wrap items-center gap-3 text-xl font-semibold text-[#E8EDEF]">
-        {title}
-        <span className="rounded-full bg-amber-400/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-amber-300">
-          Open
-        </span>
-      </h2>
-      <p className="mt-2 leading-7">{children}</p>
-      <p style={{ margin: "10px 0 0", fontSize: "13.5px", lineHeight: 1.7, color: "var(--ink-3)" }}>
-        Needs a lawyer. Left blank on purpose.
-      </p>
     </section>
   );
 }
