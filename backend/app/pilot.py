@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import os
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
 
 from .db import models
@@ -25,16 +25,24 @@ def maximum_stores() -> int:
 
 
 def enrolled_shopify_stores(db: Session) -> int:
-    """Count only shops that actually completed a live Shopify connection."""
+    """Count every shop that has joined, even if it later disconnects."""
     return db.scalar(select(func.count()).select_from(models.ChannelConnection).where(
         models.ChannelConnection.provider == "shopify",
-        models.ChannelConnection.status == "connected",
         models.ChannelConnection.external_account_id.like("%.myshopify.com"),
     )) or 0
 
 
 def has_space_for_shopify(db: Session, *, shop: str) -> bool:
-    """Return true for an existing pilot shop, or while a place remains."""
+    """Reserve the next space transactionally, or admit an enrolled shop again."""
+    # On the live PostgreSQL database this lock serializes the count-and-insert
+    # window below.  The channel row is committed in this request, so the next
+    # callback sees it before it gets a chance to take the final pilot place.
+    # SQLite is only used by development and unit tests, where it does not have
+    # advisory locks and cannot represent the production concurrency behaviour.
+    bind = db.get_bind()
+    if bind.dialect.name == "postgresql":
+        db.execute(text("SELECT pg_advisory_xact_lock(:key)"), {"key": 24812709})
+
     # A store that completed OAuth before is an enrolled participant even if it
     # later disconnects. It must be able to reconnect after the cohort fills.
     previous_connection = db.scalar(

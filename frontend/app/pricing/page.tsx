@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getEntitlement, type Entitlement } from "../../lib/api";
+import { getEntitlement, getShopifyPilot, type Entitlement, type ShopifyPilot } from "../../lib/api";
 import { Icon, IconPlate } from "../icons";
 
 /* ---------------------------------------------------------------------------
@@ -34,8 +34,10 @@ export default function PricingPage() {
   // Read if we can — the price is configuration, not a constant — but this page
   // is public and must render for somebody with no account at all.
   const [plan, setPlan] = useState<Entitlement | null>(null);
+  const [pilot, setPilot] = useState<ShopifyPilot | null>(null);
   useEffect(() => {
     getEntitlement().then(setPlan).catch(() => { /* signed out: use the defaults */ });
+    getShopifyPilot().then(setPilot).catch(() => { /* render a stable fallback */ });
   }, []);
 
   const price = plan?.price_per_month ?? FALLBACK_PRICE;
@@ -70,10 +72,12 @@ export default function PricingPage() {
       <div className="card-proven mb-6" style={{ padding: "20px 22px", borderWidth: "1px", borderStyle: "solid", maxWidth: "56ch" }}>
         <p className="lbl" style={{ color: "var(--proven)" }}>Feedback pilot</p>
         <p style={{ margin: "9px 0 0", fontSize: "16px", fontWeight: 600 }}>
-          First 10 Shopify stores: 15 days free
+          First {pilot?.maximum_stores ?? 10} Shopify stores: {pilot?.trial_days ?? 15} days free
         </p>
         <p style={{ margin: "8px 0 0", fontSize: "13px", lineHeight: 1.65, color: "var(--ink-2)" }}>
-          No card. Connect your store, use the Operator with your own data, and tell us what is useful or missing. Places are confirmed only after Shopify is connected.
+          {pilot && !pilot.available
+            ? "This cohort is full. Join the next one instead of starting Shopify approval for nothing."
+            : "No card. Connect your store, use the Operator with your own data, and tell us what is useful or missing. Places are confirmed only after Shopify is connected."}
         </p>
       </div>
 
@@ -86,7 +90,7 @@ export default function PricingPage() {
           </span>
         </p>
         <p style={{ margin: "10px 0 0", fontSize: "13px", color: "var(--ink-4)" }}>
-          15-day feedback pilot first. No card until you choose to subscribe.
+          {pilot?.trial_days ?? 15}-day feedback pilot first. No card until you choose to subscribe.
         </p>
 
         <ul className="mt-6 space-y-2" style={{ listStyle: "none", margin: "24px 0 0", padding: 0 }}>

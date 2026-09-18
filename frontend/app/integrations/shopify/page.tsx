@@ -25,6 +25,10 @@ export default function ShopifyIntegrationPage() {
       setNotice("Shopify is connected. Your store is ready for a first read-only sync.");
       window.history.replaceState({}, "", "/integrations/shopify");
     }
+    if (query.get("error") === "pilot_full") {
+      setError("The 10-store feedback pilot is full. You did not lose access to anything; please join the next cohort.");
+      window.history.replaceState({}, "", "/integrations/shopify");
+    }
     const launchedShop = query.get("from") === "shopify" ? query.get("shop")?.trim().toLowerCase() : null;
     getShopifyConnection().then(async (current) => {
       setConnection(current);

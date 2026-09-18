@@ -43,7 +43,7 @@ def test_feedback_pilot_admits_first_ten_connected_shops(monkeypatch):
 def test_feedback_pilot_allows_a_disconnected_participant_to_reconnect(monkeypatch):
     monkeypatch.setenv("PILOT_MAX_SHOPIFY_STORES", "10")
     db = _session()
-    for number in range(10):
+    for number in range(9):
         _shop(db, number)
 
     user = models.User(email="returning@example.test")
@@ -57,6 +57,8 @@ def test_feedback_pilot_allows_a_disconnected_participant_to_reconnect(monkeypat
     ))
     db.commit()
 
+    assert pilot.enrolled_shopify_stores(db) == 10
+    assert pilot.has_space_for_shopify(db, shop="new-shop.myshopify.com") is False
     assert pilot.has_space_for_shopify(db, shop="returning-shop.myshopify.com") is True
 
 

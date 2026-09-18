@@ -33,6 +33,11 @@ def _shopify_success_redirect() -> str | None:
     return f"{base}/integrations/shopify?connected=1" if base.startswith("https://") else None
 
 
+def _shopify_error_redirect(reason: str) -> str | None:
+    base = (os.getenv("PUBLIC_APP_URL") or "").strip().rstrip("/")
+    return f"{base}/integrations/shopify?error={reason}" if base.startswith("https://") else None
+
+
 @router.get("/api/integrations/shopify/pilot", response_model=ShopifyPilotResponse)
 def shopify_pilot_status(db: Session = Depends(get_session)) -> ShopifyPilotResponse:
     """Show whether a new merchant can join before sending them to Shopify."""
@@ -395,7 +400,14 @@ def shopify_callback(request: Request, db: Session = Depends(get_session)) -> Sh
             return RedirectResponse(redirect, status_code=303)
         return result
     except shopify.ShopifyAuthorizationError as exc:
-        raise HTTPException(status_code=400, detail="Shopify authorization failed") from exc
+        # A full cohort is an expected business outcome, not a mysterious JSON
+        # error after somebody has approved Shopify access.  Return the browser
+        # to the Operator with a safe, actionable explanation.
+        if "feedback pilot is full" in str(exc).lower():
+            redirect = _shopify_error_redirect("pilot_full")
+            if redirect and "text/html" in request.headers.get("accept", ""):
+                return RedirectResponse(redirect, status_code=303)
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         log.exception("Shopify OAuth callback failed")
         raise HTTPException(status_code=502, detail="Shopify authorization failed") from exc
