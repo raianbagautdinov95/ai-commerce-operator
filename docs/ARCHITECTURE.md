@@ -582,6 +582,14 @@ each row rather than implying it acted.
 
 ## Channels
 
+### Feedback pilot
+
+The public Shopify feedback pilot is limited by `PILOT_MAX_SHOPIFY_STORES`
+(default: 10). A place is checked at the OAuth callback, after Shopify has
+named the shop and before its credential is stored. Mere account creation and
+an abandoned authorization do not consume a place. New subscriptions default
+to a 15-day card-free trial (`TRIAL_DAYS=15`); the server owns that date.
+
 **Shopify-first, settled 2026-09-04.** One channel is the product for now; the
 other two are kept working but are not promised to anybody and are not
 developed further until a real Shopify store has completed the whole loop. See

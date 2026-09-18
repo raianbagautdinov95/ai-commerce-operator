@@ -2,6 +2,7 @@
 
 from .. import credentials
 from .. import entitlement
+from .. import pilot
 from .. import shopify
 from .. import webhook_health
 from ..db import crud, models
@@ -338,6 +339,9 @@ def shopify_callback(request: Request, db: Session = Depends(get_session)) -> Sh
         if any(row.store_id != state.store_id for row in existing):
             raise shopify.ShopifyAuthorizationError(
                 "This Shopify shop is already connected to another tenant.")
+        if not pilot.has_space_for_shopify(db, shop=shop):
+            raise shopify.ShopifyAuthorizationError(
+                "The 10-store feedback pilot is full. Please join the next cohort.")
         # The state row is how this callback learns whose store it is.
         declare_tenant(db, state.store_id)
         token = shopify.exchange_code(shop, query.get("code", ""))

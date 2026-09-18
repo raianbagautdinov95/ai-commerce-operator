@@ -110,6 +110,11 @@ export default function ShopifyIntegrationPage() {
           Connect your own store. The Operator imports aggregate performance and never stores a
           customer email from an order notification.
         </p>
+        {!connected && (
+          <p className="card-proven mt-5" style={{ marginBottom: 0, padding: "13px 16px", borderWidth: "1px", borderStyle: "solid", fontSize: "13px", lineHeight: 1.6 }}>
+            <strong>Feedback pilot:</strong> the first 10 connected Shopify stores receive 15 days free. No card required; we ask for honest feedback on what helps and what does not.
+          </p>
+        )}
       </section>
 
       <div className="card p-6 sm:p-8">

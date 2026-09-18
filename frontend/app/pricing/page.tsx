@@ -67,6 +67,16 @@ export default function PricingPage() {
         </p>
       </section>
 
+      <div className="card-proven mb-6" style={{ padding: "20px 22px", borderWidth: "1px", borderStyle: "solid", maxWidth: "56ch" }}>
+        <p className="lbl" style={{ color: "var(--proven)" }}>Feedback pilot</p>
+        <p style={{ margin: "9px 0 0", fontSize: "16px", fontWeight: 600 }}>
+          First 10 Shopify stores: 15 days free
+        </p>
+        <p style={{ margin: "8px 0 0", fontSize: "13px", lineHeight: 1.65, color: "var(--ink-2)" }}>
+          No card. Connect your store, use the Operator with your own data, and tell us what is useful or missing. Places are confirmed only after Shopify is connected.
+        </p>
+      </div>
+
       <div className="card" style={{ padding: "28px 30px", maxWidth: "56ch" }}>
         <p className="lbl">{plan?.plan_name ?? "Operator"}</p>
         <p style={{ margin: "12px 0 0", fontSize: "34px", fontWeight: 600 }}>
@@ -76,7 +86,7 @@ export default function PricingPage() {
           </span>
         </p>
         <p style={{ margin: "10px 0 0", fontSize: "13px", color: "var(--ink-4)" }}>
-          Free trial first. No card until you choose to subscribe.
+          15-day feedback pilot first. No card until you choose to subscribe.
         </p>
 
         <ul className="mt-6 space-y-2" style={{ listStyle: "none", margin: "24px 0 0", padding: 0 }}>

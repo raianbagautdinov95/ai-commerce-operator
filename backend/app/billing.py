@@ -45,7 +45,10 @@ PLANS = {
 def ensure_subscription(db: Session, *, store_id: uuid.UUID) -> models.Subscription:
     row = db.scalar(select(models.Subscription).where(models.Subscription.store_id == store_id))
     if row is None:
-        days = max(1, min(int(os.getenv("TRIAL_DAYS", "14")), 30))
+        # The public feedback pilot is deliberately short and card-free.  The
+        # deployment may override this, but a new environment must not quietly
+        # fall back to the old fourteen-day experiment.
+        days = max(1, min(int(os.getenv("TRIAL_DAYS", "15")), 30))
         row = models.Subscription(
             store_id=store_id, plan="operator", status="trialing",
             trial_ends_at=dt.datetime.now(dt.timezone.utc) + dt.timedelta(days=days),
