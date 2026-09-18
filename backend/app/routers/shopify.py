@@ -9,7 +9,8 @@ from ..db import crud, models
 from ..db.session import declare_tenant, get_session
 from ..queueing import queue_enabled
 from ..schemas import (
-    ShopifyAuthorizationResponse, ShopifyConnectionResponse, BackgroundJobResponse)
+    ShopifyAuthorizationResponse, ShopifyConnectionResponse, ShopifyPilotResponse,
+    BackgroundJobResponse)
 from fastapi import APIRouter, Depends, HTTPException, Header, Query, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy import delete, select
@@ -30,6 +31,21 @@ def _shopify_success_redirect() -> str | None:
     """The browser OAuth flow ends back in the app, never on API JSON."""
     base = (os.getenv("PUBLIC_APP_URL") or "").strip().rstrip("/")
     return f"{base}/integrations/shopify?connected=1" if base.startswith("https://") else None
+
+
+@router.get("/api/integrations/shopify/pilot", response_model=ShopifyPilotResponse)
+def shopify_pilot_status(db: Session = Depends(get_session)) -> ShopifyPilotResponse:
+    """Show whether a new merchant can join before sending them to Shopify."""
+    maximum = pilot.maximum_stores()
+    enrolled = pilot.enrolled_shopify_stores(db)
+    remaining = max(0, maximum - enrolled)
+    return ShopifyPilotResponse(
+        maximum_stores=maximum,
+        enrolled_stores=enrolled,
+        remaining_stores=remaining,
+        available=remaining > 0,
+        trial_days=max(1, min(int(os.getenv("TRIAL_DAYS", "15")), 30)),
+    )
 
 
 @router.post("/api/integrations/shopify/authorize",

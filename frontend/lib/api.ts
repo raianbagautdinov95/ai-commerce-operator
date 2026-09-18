@@ -675,6 +675,21 @@ export interface ShopifyConnection {
   reason: string | null;
 }
 
+export interface ShopifyPilot {
+  maximum_stores: number;
+  enrolled_stores: number;
+  remaining_stores: number;
+  available: boolean;
+  trial_days: number;
+}
+
+/** Public aggregate: visitors can see availability before starting OAuth. */
+export async function getShopifyPilot(): Promise<ShopifyPilot> {
+  const res = await fetch(`${API_BASE}/api/integrations/shopify/pilot`);
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  return await res.json();
+}
+
 export async function getShopifyConnection(): Promise<ShopifyConnection> {
   const res = await apiFetch(`${API_BASE}/api/integrations/shopify/account`);
   if (!res.ok) throw new Error(`API error ${res.status}`);

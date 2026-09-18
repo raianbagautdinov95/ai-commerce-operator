@@ -559,6 +559,15 @@ class ShopifyConnectionResponse(BaseModel):
     reason: str | None = None
 
 
+class ShopifyPilotResponse(BaseModel):
+    """Public aggregate only — never reveals another merchant or their data."""
+    maximum_stores: int
+    enrolled_stores: int
+    remaining_stores: int
+    available: bool
+    trial_days: int
+
+
 class WooCommerceAuthorizationResponse(BaseModel):
     authorization_url: str
 

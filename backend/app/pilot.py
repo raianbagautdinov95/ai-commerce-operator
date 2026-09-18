@@ -24,6 +24,15 @@ def maximum_stores() -> int:
     return max(1, min(value, 100))
 
 
+def enrolled_shopify_stores(db: Session) -> int:
+    """Count only shops that actually completed a live Shopify connection."""
+    return db.scalar(select(func.count()).select_from(models.ChannelConnection).where(
+        models.ChannelConnection.provider == "shopify",
+        models.ChannelConnection.status == "connected",
+        models.ChannelConnection.external_account_id.like("%.myshopify.com"),
+    )) or 0
+
+
 def has_space_for_shopify(db: Session, *, shop: str) -> bool:
     """Return true for an existing pilot shop, or while a place remains."""
     # A store that completed OAuth before is an enrolled participant even if it
@@ -37,10 +46,4 @@ def has_space_for_shopify(db: Session, *, shop: str) -> bool:
     if previous_connection:
         return True
 
-    connected = select(models.ChannelConnection).where(
-        models.ChannelConnection.provider == "shopify",
-        models.ChannelConnection.status == "connected",
-        models.ChannelConnection.external_account_id.like("%.myshopify.com"),
-    )
-    count = db.scalar(select(func.count()).select_from(connected.subquery())) or 0
-    return count < maximum_stores()
+    return enrolled_shopify_stores(db) < maximum_stores()

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import {
   beginShopifyAuthorization, disconnectShopify, getShopifyConnection, retryShopifyNotifications,
-  startShopifySync, waitForBackgroundJob, type ShopifyConnection,
+  getShopifyPilot, startShopifySync, waitForBackgroundJob, type ShopifyConnection, type ShopifyPilot,
 } from "../../../lib/api";
 import { Icon, IconPlate } from "../../icons";
 
@@ -13,6 +13,7 @@ import { Icon, IconPlate } from "../../icons";
 
 export default function ShopifyIntegrationPage() {
   const [connection, setConnection] = useState<ShopifyConnection | null>(null);
+  const [pilot, setPilot] = useState<ShopifyPilot | null>(null);
   const [shop, setShop] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -38,9 +39,14 @@ export default function ShopifyIntegrationPage() {
         catch (e) { setError((e as Error).message); setBusy(false); }
       }
     }).catch((e) => setError((e as Error).message));
+    getShopifyPilot().then(setPilot).catch(() => { /* availability is helpful, never blocking */ });
   }, []);
 
   async function connect() {
+    if (pilot && !pilot.available && !connection?.shop) {
+      setError("The 10-store feedback pilot is full. Please join the next cohort.");
+      return;
+    }
     setBusy(true); setError(null);
     try { window.location.assign(await beginShopifyAuthorization(shop)); }
     catch (e) { setError((e as Error).message); setBusy(false); }
@@ -112,7 +118,12 @@ export default function ShopifyIntegrationPage() {
         </p>
         {!connected && (
           <p className="card-proven mt-5" style={{ marginBottom: 0, padding: "13px 16px", borderWidth: "1px", borderStyle: "solid", fontSize: "13px", lineHeight: 1.6 }}>
-            <strong>Feedback pilot:</strong> the first 10 connected Shopify stores receive 15 days free. No card required; we ask for honest feedback on what helps and what does not.
+            <strong>Feedback pilot:</strong>{" "}
+            {pilot
+              ? pilot.available
+                ? `${pilot.remaining_stores} of ${pilot.maximum_stores} places left — ${pilot.trial_days} days free. No card required; we ask for honest feedback on what helps and what does not.`
+                : `All ${pilot.maximum_stores} places are now taken. Join the next cohort instead of starting Shopify approval for nothing.`
+              : "the first 10 connected Shopify stores receive 15 days free. No card required; we ask for honest feedback on what helps and what does not."}
           </p>
         )}
       </section>
@@ -166,9 +177,9 @@ export default function ShopifyIntegrationPage() {
               <input id="shop" value={shop} onChange={(e) => setShop(e.target.value)}
                      placeholder="your-store.myshopify.com"
                      className="field num" style={{ flex: 1, minWidth: 0 }} />
-              <button onClick={connect} disabled={busy || !shop.trim()}
+              <button onClick={connect} disabled={busy || !shop.trim() || Boolean(pilot && !pilot.available && !connection?.shop)}
                       className="btn-primary shrink-0 inline-flex items-center gap-2">
-                <Icon name="plug" size={13} /> {busy ? "OPENING SHOPIFY…" : "CONTINUE TO SHOPIFY"}
+                <Icon name="plug" size={13} /> {busy ? "OPENING SHOPIFY…" : pilot && !pilot.available && !connection?.shop ? "PILOT FULL" : "CONTINUE TO SHOPIFY"}
               </button>
             </div>
             <p style={{ margin: "10px 0 0", fontSize: "12px", color: "var(--ink-5)" }}>

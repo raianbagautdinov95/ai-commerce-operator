@@ -176,6 +176,7 @@ async def security_headers(request: Request, call_next):
 PUBLIC_PATHS = {
     "/health", "/health/ready", "/docs", "/openapi.json",
     "/api/legal",
+    "/api/integrations/shopify/pilot",
     "/api/auth/config",
     "/api/auth/google",
     "/api/auth/email/request",
