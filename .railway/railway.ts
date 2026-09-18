@@ -74,6 +74,9 @@ export default defineRailway(() => {
       LEGAL_ENTITY: preserve(),
       LEGAL_ADDRESS: preserve(),
       PRIVACY_CONTACT: preserve(),
+      LEGAL_BUSINESS_ID: preserve(),
+      LEGAL_BUSINESS_TYPE: preserve(),
+      LEGAL_COUNTRY: preserve(),
       SUPPORT_RESPONSE_TIME: preserve(),
 
       // Billing. Listed here even though none of it is set yet, because this
