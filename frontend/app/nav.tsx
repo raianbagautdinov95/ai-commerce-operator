@@ -23,6 +23,13 @@ const SECONDARY = [
   { href: "/setup", label: "SETUP" },
 ];
 
+/* What a visitor with no account can actually open. Showing them the whole
+   product's menu is a list of doors that all lead to the sign-in form. */
+const GUEST: { href: string; label: string; icon: IconName }[] = [
+  { href: "/try", label: "FREE PRODUCT CHECK", icon: "gem" },
+  { href: "/pricing", label: "PRICING", icon: "profit" },
+];
+
 const SETUP_TONE: Record<OnboardingStatus, { colour: string; word: string }> = {
   complete: { colour: "var(--proven)", word: "SET UP" },
   needs_attention: { colour: "var(--unproven)", word: "SETUP NEEDS YOU" },
@@ -32,7 +39,9 @@ const SETUP_TONE: Record<OnboardingStatus, { colour: string; word: string }> = {
 
 export default function Nav() {
   const pathname = usePathname();
-  const { principal, signOut } = useSession();
+  const { principal, checked, signOut } = useSession();
+  // Nobody signed in, and the server has said so (not merely not answered yet).
+  const guest = checked && principal == null;
   const authOff = principal != null && principal.user_id === "";
   const [setup, setSetup] = useState<OnboardingStatus | null>(null);
   const [collapsed, setCollapsed] = useState(false);
@@ -63,7 +72,7 @@ export default function Nav() {
   return (
     <nav className={`operator-nav ${collapsed ? "is-collapsed" : ""}`} aria-label="Main navigation">
       <div className="operator-nav-head">
-        <a href="/dashboard" className="operator-brand" title="OPERATOR">
+        <a href={guest ? "/try" : "/dashboard"} className="operator-brand" title="OPERATOR">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--proven)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <rect x="3" y="3" width="18" height="18" rx="2" /><path d="M8 12.5l2.5 2.5L16 9" />
           </svg>
@@ -77,6 +86,17 @@ export default function Nav() {
       </div>
 
       <div className="operator-nav-scroll">
+        {guest ? (
+          <div className="operator-nav-group">
+            {GUEST.map((item) => {
+              const active = pathname === item.href;
+              return <a key={item.href} href={item.href} title={item.label}
+                className={`operator-nav-link num ${active ? "is-active" : ""}`} style={linkStyle(active)}>
+                <Icon name={item.icon} size={17} /><span className="operator-nav-label">{item.label}</span>
+              </a>;
+            })}
+          </div>
+        ) : (<>
         <div className="operator-nav-group">
           {PRIMARY.map((item) => {
             const active = pathname === item.href;
@@ -96,6 +116,7 @@ export default function Nav() {
             </a>;
           })}
         </div>
+        </>)}
       </div>
 
       <div className="operator-nav-account num">
