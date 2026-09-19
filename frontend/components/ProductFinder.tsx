@@ -82,6 +82,9 @@ const fields: [keyof ProductRequest, string][] = [
 
 const pct = (x: number) => `${(x * 100).toFixed(0)}%`;
 const money = (x: number | null) => (x == null ? "—" : `$${x.toFixed(2)}`);
+// Whole dollars, always "6,320": the fee schedule is Amazon US, and a browser
+// set to another locale would otherwise print "6 320,7" under a $ sign.
+const dollars = (x: number) => Math.round(x).toLocaleString("en-US");
 
 const criterionLabels: Record<string, string> = {
   margin: "Margin",
@@ -373,7 +376,7 @@ export default function ProductFinder({ mode = "app" }: { mode?: "app" | "public
                     <td className="num px-4 py-3.5 text-right" style={{ fontSize: "13px" }}>{pct(r.economics.margin)}</td>
                     <td className="num px-4 py-3.5 text-right" style={{ fontSize: "13px" }}>{pct(r.economics.roi)}</td>
                     <td className="num px-4 py-3.5 text-right" style={{ fontSize: "13px", color: "var(--ink-3)" }}>
-                      ~${r.economics.monthly_profit.toLocaleString()}
+                      ~${dollars(r.economics.monthly_profit)}
                     </td>
                   </tr>
                 ))}
@@ -402,7 +405,7 @@ export default function ProductFinder({ mode = "app" }: { mode?: "app" | "public
             <Inline label="Profit / unit" value={`$${r.economics.profit_per_unit}`} />
             <Inline label="Margin" value={pct(r.economics.margin)} />
             <Inline label="ROI" value={pct(r.economics.roi)} />
-            <Inline label="Per month" value={`~$${r.economics.monthly_profit.toLocaleString()}`} dim />
+            <Inline label="Per month" value={`~$${dollars(r.economics.monthly_profit)}`} dim />
           </div>
 
           {r.explanation && (
@@ -501,7 +504,7 @@ export default function ProductFinder({ mode = "app" }: { mode?: "app" | "public
                 <div className="min-w-0">
                   <p className="truncate" style={{ margin: 0, fontSize: "14px" }}>{h.name}</p>
                   <p className="num" style={{ margin: "5px 0 0", fontSize: "11.5px", color: "var(--ink-4)" }}>
-                    MARGIN {pct(h.economics.margin)} · ~${h.economics.monthly_profit.toLocaleString()}/MO ·
+                    MARGIN {pct(h.economics.margin)} · ~${dollars(h.economics.monthly_profit)}/MO ·
                     {" "}{new Date(h.created_at).toLocaleDateString()}
                   </p>
                 </div>
