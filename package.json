@@ -2,9 +2,9 @@
   "name": "ai-commerce-operator-infrastructure",
   "private": true,
   "scripts": {
-    "railway:plan": "npx @railway/cli config plan"
+    "railway:plan": "railway config plan"
   },
   "devDependencies": {
-    "railway": "latest"
+    "railway": "^3.11.0"
   }
 }

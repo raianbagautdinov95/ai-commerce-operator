@@ -107,6 +107,28 @@ export interface EvaluateResult {
   weights: Record<string, number>;
 }
 
+/** The same engine for somebody with no account: no token, nothing stored,
+    and the server's own words when it says no (too many, or too often). */
+export async function evaluateProductsPublic(
+  products: ProductRequest[],
+  explain = true,
+): Promise<EvaluateResult> {
+  const res = await fetch(`${API_BASE}/api/public/product-hunter/evaluate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ products, explain }),
+  });
+  if (!res.ok) {
+    let detail = `API error ${res.status}`;
+    try {
+      const body = await res.json();
+      if (typeof body?.detail === "string") detail = body.detail;
+    } catch { /* not JSON: keep the status */ }
+    throw new Error(detail);
+  }
+  return (await res.json()) as EvaluateResult;
+}
+
 export async function evaluateProducts(
   products: ProductRequest[],
   explain = true,

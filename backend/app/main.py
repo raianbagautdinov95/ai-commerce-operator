@@ -30,8 +30,9 @@ from .db import crud
 from .db import session as db_session
 from .db.session import SessionLocal, init_db
 from .queueing import validate_queue_config
-from .routers import (account, ads, amazon, auth, autopilot, commerce, costs, dashboards, health,
-                      inventory, money, privacy, report, research, shopify, woocommerce)
+from .routers import (account, ads, amazon, auth, autopilot, commerce, costs, dashboards,
+                      health, inventory, money, privacy, public, report, research, shopify,
+                      woocommerce)
 from .runtime import (_OAuthQueryRedactionFilter, _metrics_lock, _request_counts,
                       _request_duration_seconds, log)
 from .security import (AuthenticationError, AuthorizationError, auth_enabled,
@@ -185,6 +186,9 @@ PUBLIC_PATHS = {
     "/api/integrations/shopify/callback",
     "/api/integrations/woocommerce/callback",
     "/api/webhooks/shopify", "/api/webhooks/stripe",
+    # The one business endpoint open to strangers: the Hunter, bounded and
+    # stateless, so a visitor can see a verdict before deciding to sign up.
+    "/api/public/product-hunter/evaluate",
 }
 
 
@@ -251,6 +255,6 @@ app.add_middleware(CORSMiddleware, allow_origins=_explicit_origins,
 
 # One router per domain. The order here is the order they appear in /docs.
 for _router in (health, auth, privacy, shopify, woocommerce, amazon, account, dashboards,
-                commerce, costs, research, ads, inventory, report, autopilot,
+                commerce, costs, research, public, ads, inventory, report, autopilot,
                 money):
     app.include_router(_router.router)

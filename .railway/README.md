@@ -6,13 +6,15 @@ It creates PostgreSQL, Redis, API, worker, scheduler and frontend services.
 Before the first plan, create the Shared Variables listed in
 `../railway/VARIABLES.md`. Never put their values in this repository.
 
-Preview only:
+Preview only (Railway CLI 5.42+; on Windows, npm installs the CLI as a
+`.cmd` shim the IaC engine cannot spawn, so point it at the real binary first:
+`$env:_ = "$env:APPDATA\npm\node_modules\@railway\cli\bin\railway.exe"`):
 
-    npx railway config plan
+    railway config plan
 
 Apply only after reviewing that the plan contains no unexpected deletes:
 
-    npx railway config apply
+    railway config apply
 
 The old per-service `railway/*.toml` mechanism is deprecated and must not be
 selected in a service's Config File field.
