@@ -49,6 +49,8 @@ def _oauth_failure_reason(error: shopify.ShopifyAuthorizationError) -> str:
         return "token_exchange"
     if "pilot is full" in message:
         return "pilot_full"
+    if "another tenant" in message:
+        return "already_connected"
     return "authorization_rejected"
 
 
@@ -422,6 +424,13 @@ def shopify_callback(request: Request, db: Session = Depends(get_session)) -> Sh
         # to the Operator with a safe, actionable explanation.
         if "feedback pilot is full" in str(exc).lower():
             redirect = _shopify_error_redirect("pilot_full")
+            if redirect and "text/html" in request.headers.get("accept", ""):
+                return RedirectResponse(redirect, status_code=303)
+        # The same person with two email addresses is two tenants, and the shop
+        # belongs to whichever signed in first. "Try again" is the wrong advice
+        # there; "sign in as the other one" is the right one.
+        if "another tenant" in str(exc).lower():
+            redirect = _shopify_error_redirect("already_connected")
             if redirect and "text/html" in request.headers.get("accept", ""):
                 return RedirectResponse(redirect, status_code=303)
         # OAuth runs in the merchant's browser.  A raw API JSON response after

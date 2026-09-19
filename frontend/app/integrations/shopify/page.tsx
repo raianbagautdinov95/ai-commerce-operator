@@ -29,6 +29,10 @@ export default function ShopifyIntegrationPage() {
       setError("The 10-store feedback pilot is full. You did not lose access to anything; please join the next cohort.");
       window.history.replaceState({}, "", "/integrations/shopify");
     }
+    if (query.get("error") === "already_connected") {
+      setError("This Shopify store is already connected to a different account here — most likely one of yours under another email address. Sign out, sign in with that address, and the store will be waiting. To move it to this account instead, disconnect it there first.");
+      window.history.replaceState({}, "", "/integrations/shopify");
+    }
     if (query.get("error") === "authorization_failed") {
       setError("Shopify could not finish the connection. Nothing in your store was changed. Try again; if it happens again, contact us and include the time of the attempt.");
       window.history.replaceState({}, "", "/integrations/shopify");

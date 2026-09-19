@@ -393,6 +393,52 @@ def test_browser_oauth_failure_returns_to_the_connection_screen(monkeypatch, cap
     assert "Shopify OAuth authorization rejected: callback_signature" in caplog.text
 
 
+def test_a_shop_held_by_another_tenant_says_so(monkeypatch, caplog):
+    """One person, two email addresses, two tenants: the second must be told to
+    sign in as the first, not to try again."""
+    _configure(monkeypatch)
+    monkeypatch.setenv("PUBLIC_APP_URL", "https://app.example.test")
+    engine = create_engine("sqlite://", poolclass=StaticPool,
+                           connect_args={"check_same_thread": False})
+    Base.metadata.create_all(engine)
+    factory = sessionmaker(bind=engine, expire_on_commit=False)
+    db = factory()
+    first = crud.get_or_create_dev_store(db)
+    db.add(models.ChannelConnection(
+        store_id=first.id, provider="shopify", external_account_id="held.myshopify.com",
+        display_name="held", status="disconnected", currency="USD", settings={},
+    ))
+    db.commit()
+    other_user = models.User(email="second@example.test")
+    db.add(other_user); db.flush()
+    second = models.Store(user_id=other_user.id)
+    db.add(second); db.commit()
+    authorization_url = shopify.create_authorization(
+        db, store_id=second.id, actor_id=other_user.id, shop="held.myshopify.com"
+    )
+    state = parse_qs(urlparse(authorization_url).query)["state"][0]
+
+    def override():
+        session = factory()
+        try: yield session
+        finally: session.close()
+
+    app.dependency_overrides[get_session] = override
+    params = {"code": "code-1", "shop": "held.myshopify.com", "state": state, "timestamp": "1"}
+    message = urlencode(sorted(params.items()))
+    params["hmac"] = hmac.new(b"shopify-secret", message.encode(), hashlib.sha256).hexdigest()
+    try:
+        response = TestClient(app).get("/api/integrations/shopify/callback", params=params,
+                                       headers={"Accept": "text/html"}, follow_redirects=False)
+        assert response.status_code == 303
+        assert response.headers["location"] == (
+            "https://app.example.test/integrations/shopify?error=already_connected"
+        )
+        assert "Shopify OAuth authorization rejected: already_connected" in caplog.text
+    finally:
+        app.dependency_overrides.pop(get_session, None)
+
+
 def test_oauth_callback_redeclares_tenant_after_credential_commit():
     """RLS settings are transaction-local; both later writes need a declaration."""
     import inspect
