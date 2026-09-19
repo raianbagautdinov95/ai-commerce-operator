@@ -196,4 +196,5 @@ def test_the_public_paths_are_exactly_the_ones_that_should_be(api):
     assert "/api/auth/me" not in PUBLIC_PATHS
     assert not any(path.startswith("/api/") and "auth" not in path and
                    "callback" not in path and "webhook" not in path and
-                   path != "/api/legal" for path in PUBLIC_PATHS)
+                   path not in {"/api/legal", "/api/integrations/shopify/pilot"}
+                   for path in PUBLIC_PATHS)
