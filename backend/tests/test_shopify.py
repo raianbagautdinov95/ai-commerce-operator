@@ -378,6 +378,21 @@ def test_browser_oauth_callback_returns_to_the_connection_screen(monkeypatch):
         app.dependency_overrides.pop(get_session, None)
 
 
+def test_browser_oauth_failure_returns_to_the_connection_screen(monkeypatch, caplog):
+    """A browser failure must not leave a merchant reading API JSON."""
+    _configure(monkeypatch)
+    monkeypatch.setenv("PUBLIC_APP_URL", "https://app.example.test")
+    response = TestClient(app).get(
+        "/api/integrations/shopify/callback?shop=one.myshopify.com&state=bad",
+        headers={"Accept": "text/html"}, follow_redirects=False,
+    )
+    assert response.status_code == 303
+    assert response.headers["location"] == (
+        "https://app.example.test/integrations/shopify?error=authorization_failed"
+    )
+    assert "Shopify OAuth authorization rejected: callback_signature" in caplog.text
+
+
 def test_oauth_callback_redeclares_tenant_after_credential_commit():
     """RLS settings are transaction-local; both later writes need a declaration."""
     import inspect

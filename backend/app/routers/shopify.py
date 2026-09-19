@@ -38,6 +38,20 @@ def _shopify_error_redirect(reason: str) -> str | None:
     return f"{base}/integrations/shopify?error={reason}" if base.startswith("https://") else None
 
 
+def _oauth_failure_reason(error: shopify.ShopifyAuthorizationError) -> str:
+    """Return an operational code without logging OAuth data or credentials."""
+    message = str(error).lower()
+    if "callback signature" in message:
+        return "callback_signature"
+    if "oauth state" in message:
+        return "oauth_state"
+    if "token exchange" in message or "access token" in message:
+        return "token_exchange"
+    if "pilot is full" in message:
+        return "pilot_full"
+    return "authorization_rejected"
+
+
 @router.get("/api/integrations/shopify/pilot", response_model=ShopifyPilotResponse)
 def shopify_pilot_status(db: Session = Depends(get_session)) -> ShopifyPilotResponse:
     """Show whether a new merchant can join before sending them to Shopify."""
@@ -400,6 +414,9 @@ def shopify_callback(request: Request, db: Session = Depends(get_session)) -> Sh
             return RedirectResponse(redirect, status_code=303)
         return result
     except shopify.ShopifyAuthorizationError as exc:
+        # The code is enough to diagnose configuration versus an expired browser
+        # session.  Do not log callback parameters, OAuth codes, HMACs, or keys.
+        log.warning("Shopify OAuth authorization rejected: %s", _oauth_failure_reason(exc))
         # A full cohort is an expected business outcome, not a mysterious JSON
         # error after somebody has approved Shopify access.  Return the browser
         # to the Operator with a safe, actionable explanation.
@@ -407,6 +424,13 @@ def shopify_callback(request: Request, db: Session = Depends(get_session)) -> Sh
             redirect = _shopify_error_redirect("pilot_full")
             if redirect and "text/html" in request.headers.get("accept", ""):
                 return RedirectResponse(redirect, status_code=303)
+        # OAuth runs in the merchant's browser.  A raw API JSON response after
+        # they approve Shopify access makes a recoverable failure look alarming
+        # and strands them on our API domain.  Return them to the connection
+        # screen instead; the page explains that nothing in the shop changed.
+        redirect = _shopify_error_redirect("authorization_failed")
+        if redirect and "text/html" in request.headers.get("accept", ""):
+            return RedirectResponse(redirect, status_code=303)
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         log.exception("Shopify OAuth callback failed")

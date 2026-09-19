@@ -29,6 +29,10 @@ export default function ShopifyIntegrationPage() {
       setError("The 10-store feedback pilot is full. You did not lose access to anything; please join the next cohort.");
       window.history.replaceState({}, "", "/integrations/shopify");
     }
+    if (query.get("error") === "authorization_failed") {
+      setError("Shopify could not finish the connection. Nothing in your store was changed. Try again; if it happens again, contact us and include the time of the attempt.");
+      window.history.replaceState({}, "", "/integrations/shopify");
+    }
     const launchedShop = query.get("from") === "shopify" ? query.get("shop")?.trim().toLowerCase() : null;
     getShopifyConnection().then(async (current) => {
       setConnection(current);
