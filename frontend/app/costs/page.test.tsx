@@ -129,7 +129,7 @@ it("puts what is blocking a measurement above what is not", async () => {
     entries: [
       entry({ variant_title: "Quiet", units_sold: 99, unit_cost: 20,
               cost_currency: "USD", source: "shopify", verification: "confirmed" }),
-      entry({ variant_title: "Blocking", units_sold: 2,
+      entry({ variant_id: "gid://shopify/ProductVariant/11", variant_title: "Blocking", units_sold: 2,
               waiting_measurements: ["The Complete Snowboard"] }),
     ],
     blocking: 1,

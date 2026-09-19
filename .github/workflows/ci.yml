@@ -47,6 +47,11 @@ jobs:
       - name: Typecheck
         working-directory: frontend
         run: npx tsc --noEmit
+      - name: Run frontend tests
+        working-directory: frontend
+        # A single worker keeps the browser-like test environment deterministic
+        # on shared CI runners.
+        run: npx vitest run --maxWorkers=1 --reporter=dot
       - name: Production build
         working-directory: frontend
         env:

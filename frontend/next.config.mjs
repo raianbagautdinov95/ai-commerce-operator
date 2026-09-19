@@ -1,5 +1,14 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const repoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // The repository keeps shared deployment files one level above the frontend.
+  // State this explicitly so Next does not infer a different root from a second
+  // lockfile and omit files required by the production image.
+  outputFileTracingRoot: repoRoot,
   // Keep production builds separate from the local dev cache. This also avoids
   // OneDrive mixing generated chunks when CI-style builds run beside dev.
   distDir: process.env.NEXT_DIST_DIR ?? ".next",
