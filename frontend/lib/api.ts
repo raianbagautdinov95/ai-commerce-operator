@@ -107,16 +107,52 @@ export interface EvaluateResult {
   weights: Record<string, number>;
 }
 
+/** Where a visitor came from: the utm_* values on the link they followed.
+    Read once when /try opens and kept for the tab, so an evaluation made
+    three clicks later is still credited to the ad that brought them. */
+export type Attribution = { source?: string; medium?: string; campaign?: string };
+
+const ATTRIBUTION_KEY = "aco.attribution";
+
+export function rememberAttribution(search: string): Attribution {
+  const q = new URLSearchParams(search);
+  const pick = (k: string) => q.get(k)?.trim().slice(0, 64) || undefined;
+  const fresh: Attribution = { source: pick("utm_source"), medium: pick("utm_medium"), campaign: pick("utm_campaign") };
+  try {
+    if (fresh.source || fresh.medium || fresh.campaign) {
+      window.sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(fresh));
+      return fresh;
+    }
+    const kept = window.sessionStorage.getItem(ATTRIBUTION_KEY);
+    return kept ? (JSON.parse(kept) as Attribution) : {};
+  } catch {
+    return fresh;
+  }
+}
+
+/** The /try page loaded. Fire and forget: nothing on the page waits for it. */
+export function recordPublicVisit(attribution: Attribution): void {
+  try {
+    void fetch(`${API_BASE}/api/public/visit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(attribution),
+      keepalive: true,
+    }).catch(() => { /* a funnel that fails must not be noticed */ });
+  } catch { /* same */ }
+}
+
 /** The same engine for somebody with no account: no token, nothing stored,
     and the server's own words when it says no (too many, or too often). */
 export async function evaluateProductsPublic(
   products: ProductRequest[],
   explain = true,
+  attribution: Attribution = {},
 ): Promise<EvaluateResult> {
   const res = await fetch(`${API_BASE}/api/public/product-hunter/evaluate`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ products, explain }),
+    body: JSON.stringify({ products, explain, attribution }),
   });
   if (!res.ok) {
     let detail = `API error ${res.status}`;

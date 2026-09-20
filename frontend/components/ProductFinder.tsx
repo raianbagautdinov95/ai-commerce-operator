@@ -5,6 +5,9 @@ import {
   evaluateProducts,
   evaluateProductsPublic,
   getHistory,
+  recordPublicVisit,
+  rememberAttribution,
+  type Attribution,
   type Evaluation,
   type HistoryItem,
   type ProductRequest,
@@ -110,7 +113,17 @@ export const PUBLIC_MAX_CANDIDATES = 5;
 
 export default function ProductFinder({ mode = "app" }: { mode?: "app" | "public" }) {
   const isPublic = mode === "public";
+  const [attribution, setAttribution] = useState<Attribution>({});
   const [forms, setForms] = useState<ProductRequest[]>(EXAMPLE);
+
+  // The public page counts its visitors — once, with the source the link
+  // carried, and nothing else about them (see the API's visitor_key).
+  useEffect(() => {
+    if (!isPublic) return;
+    const a = rememberAttribution(window.location.search);
+    setAttribution(a);
+    recordPublicVisit(a);
+  }, [isPublic]);
   const [untouched, setUntouched] = useState(true);
   const [results, setResults] = useState<Evaluation[]>([]);
   const [weights, setWeights] = useState<Record<string, number>>({});
@@ -229,7 +242,7 @@ export default function ProductFinder({ mode = "app" }: { mode?: "app" | "public
     setError(null);
     try {
       const { results: r, weights: w } = isPublic
-        ? await evaluateProductsPublic(forms, true)
+        ? await evaluateProductsPublic(forms, true, attribution)
         : await evaluateProducts(forms, true);
       setResults(r);
       setWeights(w);

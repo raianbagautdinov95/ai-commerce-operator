@@ -420,6 +420,20 @@ class IntegrationCredential(Base):
     updated_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
+class PublicFunnelEvent(Base):
+    """One event on the public /try page — a visit or an evaluation — with the
+    campaign source the link carried. No tenant, no person: `visitor` is a
+    keyed daily hash, never an address. See migration 0025."""
+    __tablename__ = "public_funnel_events"
+    id: Mapped[uuid.UUID] = mapped_column(_UUID, primary_key=True, default=_uuid)
+    kind: Mapped[str] = mapped_column(String(16))
+    source: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    medium: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    campaign: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    visitor: Mapped[str] = mapped_column(String(64), index=True)
+    created_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class OAuthState(Base):
     __tablename__ = "oauth_states"
     id: Mapped[uuid.UUID] = mapped_column(_UUID, primary_key=True, default=_uuid)

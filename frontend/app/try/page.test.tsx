@@ -25,7 +25,22 @@ const verdict = (name: string): api.Evaluation => ({
   inputs: { name, price: 27, cogs: 6.5, fba_fee: 3.3, monthly_sales: 600, ppc_per_unit: 2.5 } as api.ProductRequest,
 });
 
-afterEach(() => vi.restoreAllMocks());
+afterEach(() => { vi.restoreAllMocks(); window.sessionStorage.clear(); });
+
+it("counts the visit with the source the link carried, and credits the evaluation to it", async () => {
+  window.history.replaceState({}, "", "/try?utm_source=facebook&utm_medium=paid&utm_campaign=try-us");
+  const visit = vi.spyOn(api, "recordPublicVisit").mockImplementation(() => {});
+  const pub = vi.spyOn(api, "evaluateProductsPublic")
+    .mockResolvedValue({ results: [verdict("Silicone baking molds")], weights: { margin: 25 } });
+
+  render(<TryPage />);
+  expect(visit).toHaveBeenCalledWith({ source: "facebook", medium: "paid", campaign: "try-us" });
+
+  await userEvent.click(screen.getByRole("button", { name: /evaluate/i }));
+  await waitFor(() => expect(pub).toHaveBeenCalled());
+  expect(pub.mock.calls[0][2]).toEqual({ source: "facebook", medium: "paid", campaign: "try-us" });
+  window.history.replaceState({}, "", "/try");
+});
 
 it("scores through the public endpoint and only then invites", async () => {
   const pub = vi.spyOn(api, "evaluateProductsPublic")

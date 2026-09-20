@@ -13,14 +13,21 @@ number of evaluations an hour, counted in Redis when the queue is configured
 """
 from __future__ import annotations
 
+import datetime as dt
+import hashlib
+import hmac
 import os
 import threading
 import time
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
 from .. import decision_engine as de
 from .. import llm
+from ..db import models
+from ..db.session import get_session
 from ..runtime import log
 from ..schemas import EvaluateRequest, EvaluateResponse
 from .research import _evaluation_out
@@ -28,6 +35,7 @@ from .research import _evaluation_out
 router = APIRouter()
 
 PUBLIC_EVALUATE_PATH = "/api/public/product-hunter/evaluate"
+PUBLIC_VISIT_PATH = "/api/public/visit"
 
 #: Candidates per request. Twenty at once is a catalogue, and a catalogue is
 #: what the signed-in product is for.
@@ -104,10 +112,65 @@ def reset_for_tests() -> None:
         _local.clear()
 
 
+# --- who came, and from where ---------------------------------------------
+
+class Attribution(BaseModel):
+    """The utm_* values the link carried. Free text from a URL, so bounded."""
+    source: str | None = Field(default=None, max_length=64)
+    medium: str | None = Field(default=None, max_length=64)
+    campaign: str | None = Field(default=None, max_length=64)
+
+    def clean(self) -> "Attribution":
+        norm = lambda v: (v or "").strip().lower()[:64] or None  # noqa: E731
+        return Attribution(source=norm(self.source), medium=norm(self.medium),
+                           campaign=norm(self.campaign))
+
+
+class PublicEvaluateRequest(EvaluateRequest):
+    attribution: Attribution | None = None
+
+
+def visitor_key(request: Request) -> str:
+    """One value per person per day, and nothing that turns back into them.
+
+    A keyed hash of the address and browser with today's date folded in: the
+    same visitor reloading counts once, and the key is different tomorrow, so
+    the table never becomes a record of who was where. The address itself is
+    not stored anywhere."""
+    salt = os.getenv("PUBLIC_FUNNEL_SALT") or os.getenv("JWT_SECRET") or "development"
+    today = dt.datetime.now(dt.timezone.utc).date().isoformat()
+    material = f"{client_address(request)}|{request.headers.get('user-agent', '')}|{today}"
+    return hmac.new(salt.encode(), material.encode(), hashlib.sha256).hexdigest()
+
+
+def record(db: Session, *, kind: str, visitor: str, attribution: Attribution | None) -> None:
+    """Best effort: the funnel must never take the door down."""
+    a = (attribution or Attribution()).clean()
+    try:
+        db.add(models.PublicFunnelEvent(kind=kind, visitor=visitor, source=a.source,
+                                        medium=a.medium, campaign=a.campaign))
+        db.commit()
+    except Exception:  # pragma: no cover - defensive
+        log.exception("Could not record a public funnel event")
+        db.rollback()
+
+
+@router.post(PUBLIC_VISIT_PATH, status_code=204)
+def public_visit(attribution: Attribution, request: Request,
+                 db: Session = Depends(get_session)) -> None:
+    """The /try page loaded in somebody's browser. Called once per page view;
+    counted once per visitor per day."""
+    if not allow(client_address(request), limit=max(hourly_limit() * 5, 60)):
+        return None
+    record(db, kind="visit", visitor=visitor_key(request), attribution=attribution)
+    return None
+
+
 # --- the endpoint -----------------------------------------------------------
 
 @router.post(PUBLIC_EVALUATE_PATH, response_model=EvaluateResponse)
-def evaluate_products_public(req: EvaluateRequest, request: Request) -> EvaluateResponse:
+def evaluate_products_public(req: PublicEvaluateRequest, request: Request,
+                             db: Session = Depends(get_session)) -> EvaluateResponse:
     """Score up to five candidates for somebody with no account. Same engine,
     same verdict scale; nothing stored."""
     if not req.products:
@@ -125,6 +188,8 @@ def evaluate_products_public(req: EvaluateRequest, request: Request) -> Evaluate
                    "Sign in for an unlimited Hunter.",
             headers={"Retry-After": str(WINDOW_SECONDS)},
         )
+
+    record(db, kind="evaluate", visitor=visitor_key(request), attribution=req.attribution)
 
     inputs = [de.ProductInput(**p.model_dump()) for p in req.products]
     inputs_by_name = {p.name: p.model_dump() for p in req.products}

@@ -189,6 +189,7 @@ PUBLIC_PATHS = {
     # The one business endpoint open to strangers: the Hunter, bounded and
     # stateless, so a visitor can see a verdict before deciding to sign up.
     "/api/public/product-hunter/evaluate",
+    "/api/public/visit",
 }
 
 
