@@ -69,6 +69,9 @@ export default function Nav() {
   });
   const linkStyle = (active: boolean) => ({ color: active ? "var(--ink)" : "var(--ink-3)" });
 
+  // The landing page is a document, not a screen in the product: no sidebar.
+  if (pathname === "/home") return null;
+
   return (
     <nav className={`operator-nav ${collapsed ? "is-collapsed" : ""}`} aria-label="Main navigation">
       <div className="operator-nav-head">

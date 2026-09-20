@@ -111,7 +111,13 @@ const barColour = (s: number) =>
    invitation — the verdict a stranger just saw is the product's best argument. */
 export const PUBLIC_MAX_CANDIDATES = 5;
 
-export default function ProductFinder({ mode = "app" }: { mode?: "app" | "public" }) {
+export default function ProductFinder({ mode = "app", heading = "h1" }: {
+  mode?: "app" | "public";
+  /** A page that already has its own h1 (the landing page) embeds this as a
+      section, so the Hunter's own title steps down one level. */
+  heading?: "h1" | "h2";
+}) {
+  const Title = heading;
   const isPublic = mode === "public";
   const [attribution, setAttribution] = useState<Attribution>({});
   const [forms, setForms] = useState<ProductRequest[]>(EXAMPLE);
@@ -261,9 +267,9 @@ export default function ProductFinder({ mode = "app" }: { mode?: "app" | "public
           <IconPlate name="gem" />
           <p className="lbl">{isPublic ? "Free product check · no account" : "Product hunter"}</p>
         </div>
-        <h1 style={{ margin: "16px 0 0", fontSize: "34px", fontWeight: 600, letterSpacing: "-.025em" }}>
+        <Title style={{ margin: "16px 0 0", fontSize: "34px", fontWeight: 600, letterSpacing: "-.025em" }}>
           Is it worth selling, before you buy any
-        </h1>
+        </Title>
         <p style={{ margin: "16px 0 0", maxWidth: "70ch", fontSize: "15px", lineHeight: 1.65, color: "var(--ink-2)" }}>
           {isPublic
             ? `Type in a product you are thinking of buying — price, landed cost, FBA fee, how many

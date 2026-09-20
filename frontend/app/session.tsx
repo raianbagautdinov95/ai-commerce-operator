@@ -20,7 +20,7 @@ import { endSession, fetchMe, NotAuthenticated, setToken, type Principal } from 
    --------------------------------------------------------------------------- */
 
 /** Pages a person must be able to reach without being signed in. */
-const PUBLIC = new Set(["/signin", "/privacy", "/terms", "/privacy-center", "/pricing", "/try"]);
+const PUBLIC = new Set(["/signin", "/privacy", "/terms", "/privacy-center", "/pricing", "/try", "/home"]);
 
 type SessionState = {
   principal: Principal | null;
