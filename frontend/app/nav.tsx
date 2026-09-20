@@ -70,7 +70,12 @@ export default function Nav() {
   const linkStyle = (active: boolean) => ({ color: active ? "var(--ink)" : "var(--ink-3)" });
 
   // The landing page is a document, not a screen in the product: no sidebar.
-  if (pathname === "/home") return null;
+  // It is /home in the app, and "/" when the bare domain rewrites to it — the
+  // rewrite is invisible to the browser, so the host is what tells them apart.
+  const onLanding = pathname === "/home" ||
+    (pathname === "/" && typeof window !== "undefined" &&
+     /^(www\.)?aicommerceoperator\.com$/.test(window.location.hostname));
+  if (onLanding) return null;
 
   return (
     <nav className={`operator-nav ${collapsed ? "is-collapsed" : ""}`} aria-label="Main navigation">
